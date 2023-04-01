@@ -2,11 +2,19 @@
 #define PHYSICSSIMULATIONS_COLLISIONSHAPE_H
 
 #include <SFML/Graphics.hpp>
+#include <valarray>
+#include <iostream>
+#include "../../main.h"
+#include <string>
 
 class CollisionShape {
     sf::RectangleShape* sprite;
     sf::RectangleShape bounds;
     sf::Vector2f size;
+
+    std::string vectorString(sf::Vector2f v) {
+        return "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ")";
+    }
 public:
     CollisionShape(sf::RectangleShape* obj, sf::Vector2f size)
     {
@@ -16,18 +24,11 @@ public:
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 
-    void update()
-    {
-        auto pos = sprite->getPosition();
-        auto diff = (this->sprite->getSize() - this->size) / 2.f;
-        pos += diff;
-        bounds.setPosition(pos);
-    }
+    bool aabbCollision(const sf::RectangleShape& m);
 
-    sf::RectangleShape* getBounds()
-    {
-        return &bounds;
-    }
+    void update();
+
+    inline sf::RectangleShape* getBounds() { return &bounds; }
 };
 
 

@@ -9,13 +9,22 @@
 class Object {
 private:
     sf::RectangleShape obj;
-    RigidBody rb;
     CollisionShape shape;
 public:
-    Object() : shape(&obj, sf::Vector2f(120, 120)), rb(&obj, shape.getBounds())
+    RigidBody rb;
+
+    Object(sf::Vector2f size, sf::Vector2f collisionSize) :
+        shape(&obj, collisionSize),
+        rb(&obj, &shape, CONTINUOUS, 1)
     {
-        obj.setSize(sf::Vector2f(100, 100));
+        obj.setSize(size);
         obj.setFillColor(sf::Color::Red);
+    }
+
+    void setPosition(sf::Vector2f pos)
+    {
+        obj.setPosition(pos);
+        shape.update();
     }
 
     void update()
@@ -24,9 +33,8 @@ public:
         shape.update();
     }
 
-    void setPosition(sf::Vector2f pos) { obj.setPosition(pos); }
-    sf::RectangleShape getSprite() { return obj; }
-    sf::RectangleShape debugBounds() { return *shape.getBounds(); }
+    inline sf::RectangleShape getSprite() { return obj; }
+    inline sf::RectangleShape debugBounds() { return *shape.getBounds(); }
 };
 
 

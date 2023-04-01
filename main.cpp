@@ -2,8 +2,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include "Behaviors/RigidBody/RigidBody.h"
-#include "Behaviors/CollisionShape/CollisionShape.h"
 #include "Object.h"
 
 float GlobalVars::deltaTime = 0.f;
@@ -13,11 +11,12 @@ sf::RectangleShape* GlobalVars::grounds = new sf::RectangleShape[GlobalVars::siz
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(500, 500), "Test");
-    window.setFramerateLimit(30);
+    //window.setFramerateLimit(120);
 
     sf::Clock deltaTimeClock;
 
-    Object obj;
+    auto size = sf::Vector2f(50, 50);
+    Object obj(size, size);
 
     sf::RectangleShape ground;
     ground.setSize(sf::Vector2f(500, 50));
@@ -47,11 +46,6 @@ int main() {
 
         elapsedTime += clock.getElapsedTime();
         clock.restart();
-        if (elapsedTime.asMilliseconds() > 1000)
-        {
-            std::cout << obj.getSprite().getPosition().y << std::endl;
-            elapsedTime = sf::milliseconds(0);
-        }
 
 
         //std::cout << deltaTime << std::endl;

@@ -5,69 +5,42 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include "../../main.h"
+#include "../CollisionShape/CollisionShape.h"
 
 namespace PhysicsLaws
 {
     const float GravityAcceleration = -9.81f; // Newton (kg * m)/s^2
 }
 
+enum CollisionDetection
+{
+    DISCRETE,
+    CONTINUOUS
+};
+
 class RigidBody {
 private:
     sf::RectangleShape* parent;
-    sf::RectangleShape* parentBounds;
+    CollisionShape* collisionShape;
     sf::Vector2f velocity{};
 
-    float Tg = 0.f;
+    CollisionDetection cdType;
+    float mass;
 public:
-    RigidBody(sf::RectangleShape* parent, sf::RectangleShape* bounds)
+    RigidBody(sf::RectangleShape* parent, CollisionShape* bounds, CollisionDetection collisionDetectionType, float mass)
     {
         this->parent = parent;
-        this->parentBounds = bounds;
+        this->collisionShape = bounds;
+        this->cdType = collisionDetectionType;
+        this->mass = mass;
     }
 
-    bool isColliding()
-    {
-        bool colliding = false;
-        auto bounds = this->parentBounds->getGlobalBounds();
-        for (int i = 0; i < GlobalVars::size; i++)
-        {
-            auto m = GlobalVars::grounds[i];
-            colliding = bounds.intersects(m.getGlobalBounds());
-            if (colliding)
-                break;
-        }
+    void update();
 
-        return colliding;
-    }
-
-    void update() {
-        auto deltaTime = GlobalVars::deltaTime;
-        auto oldVelocity = this->velocity;
-
-        bool colliding = isColliding();
-
-        //std::cout << deltaTime << std::endl;
-
-        //Adding gravity
-        if (colliding)
-            this->velocity = sf::Vector2f(0, 0);
-        else
-            this->velocity -= sf::Vector2f(0, 0.5f * PhysicsLaws::GravityAcceleration * deltaTime);
-
-        auto pos = parent->getPosition();
-        auto m = oldVelocity * deltaTime + this->velocity * deltaTime;
-        //pos:1 = x: 1000
-        m = (m * 1000.f) / 1.f;
-        pos += m;
-        //std::cout << pos.y << std::endl;
-        auto oldPos = this->parentBounds->getPosition();
-        this->parentBounds->setPosition(pos);
-        if (!isColliding())
-            parent->setPosition(pos);
-        else
-            velocity = sf::Vector2f();
-
-    }
+    //Collision detection
+    bool checkDiscreteCollision(sf::Vector2f, const sf::RectangleShape&);
+    bool checkContinuousCollision(sf::Vector2f, const sf::RectangleShape&, sf::Vector2f);
+    bool isOnGround(sf::Vector2f, sf::Vector2f, sf::Vector2f);
 };
 
 
