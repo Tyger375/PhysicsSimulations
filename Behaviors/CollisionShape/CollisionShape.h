@@ -11,10 +11,6 @@ class CollisionShape {
     sf::RectangleShape* sprite;
     sf::RectangleShape bounds;
     sf::Vector2f size;
-
-    std::string vectorString(sf::Vector2f v) {
-        return "(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ")";
-    }
 public:
     CollisionShape(sf::RectangleShape* obj, sf::Vector2f size)
     {

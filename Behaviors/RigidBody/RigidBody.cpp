@@ -18,12 +18,20 @@ void RigidBody::update() {
     pos += m;
 
     if (!isOnGround(parent->getPosition(), pos, 0.5f * velocity + oldVelocity) || velocity.y < 0)
+    {
         parent->setPosition(pos);
+    }
     else
     {
-        std::cout << velocity.y << std::endl;
-        if (velocity.y > 0)
-            velocity.y = 0;
+        if (velocity.x != 0)
+        {
+            pos.y = parent->getPosition().y;
+            parent->setPosition(pos);
+        }
+        else if (velocity.y > 0)
+        {
+            velocity = sf::Vector2f();
+        }
     }
 }
 

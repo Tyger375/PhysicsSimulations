@@ -9,13 +9,20 @@
 
 namespace PhysicsLaws
 {
-    const float GravityAcceleration = -9.81f; // Newton (kg * m)/s^2
+    const float GravityAcceleration = -9.81f; // m/s^2
 }
 
 enum CollisionDetection
 {
     DISCRETE,
     CONTINUOUS
+};
+
+enum ForceMode
+{
+    ACCELERATION,
+    FORCE,
+    IMPULSE
 };
 
 class RigidBody {
@@ -36,6 +43,28 @@ public:
     }
 
     void update();
+
+    void addForce(sf::Vector2f force, ForceMode mode=FORCE)
+    {
+        sf::Vector2f v;
+        if (mode == FORCE)
+        {
+            //Force => v is Kg*m/s^2
+            v = (force * GlobalVars::deltaTime) / mass;
+        }
+        else if (mode == ACCELERATION)
+        {
+            //Acceleration => v is m/s^2
+            v = force * GlobalVars::deltaTime;
+        }
+        else if (mode == IMPULSE)
+        {
+            //Momentum change => v is Kg*m/s
+            v = force / mass;
+        }
+
+        this->velocity += v;
+    }
 
     //Collision detection
     bool checkDiscreteCollision(sf::Vector2f, const sf::RectangleShape&);
