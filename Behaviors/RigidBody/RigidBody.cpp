@@ -6,9 +6,9 @@ void RigidBody::update() {
     auto oldVelocity = this->velocity;
 
     //Adding gravity
-    this->velocity -= sf::Vector2f(0, PhysicsLaws::GravityAcceleration * deltaTime);
+    this->velocity -= Vector2(0, PhysicsLaws::GravityAcceleration * deltaTime);
 
-    auto pos = parent->getPosition();
+    auto pos = Vector2(parent->getPosition());
     //s(t) = s0 + v0 * t + 0.5 * a * t^2
     auto m = oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime);
     //Transforming meters to pixels
@@ -19,14 +19,14 @@ void RigidBody::update() {
 
     if (!isOnGround(parent->getPosition(), pos, 0.5f * velocity + oldVelocity) || velocity.y < 0)
     {
-        parent->setPosition(pos);
+        parent->setPosition((sf::Vector2f) pos);
     }
     else
     {
         if (velocity.x != 0)
         {
             pos.y = parent->getPosition().y;
-            parent->setPosition(pos);
+            parent->setPosition((sf::Vector2f) pos);
         }
         else if (velocity.y > 0)
         {
@@ -37,7 +37,7 @@ void RigidBody::update() {
 
 #pragma region "Collision detection"
 
-bool RigidBody::isOnGround(sf::Vector2f oldPosition, sf::Vector2f newPosition, sf::Vector2f vel) {
+bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel) {
     bool colliding = false;
     for (int i = 0; i < GlobalVars::size; i++)
     {
@@ -53,7 +53,7 @@ bool RigidBody::isOnGround(sf::Vector2f oldPosition, sf::Vector2f newPosition, s
     return colliding;
 }
 
-bool RigidBody::checkContinuousCollision(const sf::Vector2f startPos, const sf::RectangleShape& m, sf::Vector2f vel) {
+bool RigidBody::checkContinuousCollision(const Vector2 startPos, const sf::RectangleShape& m, Vector2 vel) {
     const float precision = 0.0001f;
     const int max = (int)(1 / precision);
     //auto distance = sf::Vector2f(x, y);
@@ -71,7 +71,7 @@ bool RigidBody::checkContinuousCollision(const sf::Vector2f startPos, const sf::
         colliding = checkDiscreteCollision(pos + difference, m);
         if (colliding)
         {
-            sprite->setPosition(pos);
+            sprite->setPosition((sf::Vector2f) pos);
             break;
         }
     }
@@ -79,10 +79,10 @@ bool RigidBody::checkContinuousCollision(const sf::Vector2f startPos, const sf::
     return colliding;
 }
 
-bool RigidBody::checkDiscreteCollision(sf::Vector2f endPos, const sf::RectangleShape& m)
+bool RigidBody::checkDiscreteCollision(Vector2 endPos, const sf::RectangleShape& m)
 {
-    collisionShape->getBounds()->setPosition(endPos);
-    return collisionShape->aabbCollision(m);
+    collisionShape->getBounds()->setPosition((sf::Vector2f) endPos);
+    return collisionShape->satCollision(m);
 }
 
 #pragma endregion

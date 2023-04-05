@@ -25,10 +25,30 @@ bool CollisionShape::aabbCollision(const sf::RectangleShape& m)
     );
 }
 
+bool CollisionShape::satCollision(const sf::Shape& m)
+{
+    auto *s = &this->bounds;
+
+    //First shape
+    const unsigned int length = s->getPointCount();
+    Vector2* axes = getAxes(this->bounds);
+
+    //Second shape
+    const unsigned int length2 = m.getPointCount();
+    Vector2* axes2 = getAxes(m);
+
+    return
+            getCollision(axes, length, this->bounds, m)
+            &&
+            getCollision(axes2, length2, this->bounds, m);
+}
+
 void CollisionShape::update()
 {
+    bounds.setRotation(this->sprite->getRotation());
+
     auto pos = sprite->getPosition();
-    auto diff = (this->sprite->getSize() - this->size) / 2.f;
+    auto diff = (this->sprite->getSize() - (sf::Vector2f) this->size) / 2.f;
     pos += diff;
     bounds.setPosition(pos);
 }

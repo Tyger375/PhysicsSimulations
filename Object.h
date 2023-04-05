@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "Behaviors/RigidBody/RigidBody.h"
 #include "Behaviors/CollisionShape/CollisionShape.h"
+#include "Vector2/Vector2.h"
 
 class Object {
 private:
@@ -13,17 +14,23 @@ private:
 public:
     RigidBody rb;
 
-    Object(sf::Vector2f size, sf::Vector2f collisionSize) :
+    Object(Vector2 size, Vector2 collisionSize) :
         shape(&obj, collisionSize),
         rb(&obj, &shape, CONTINUOUS, 1)
     {
-        obj.setSize(size);
+        obj.setSize((sf::Vector2f) size);
         obj.setFillColor(sf::Color::Red);
     }
 
-    void setPosition(sf::Vector2f pos)
+    void setPosition(Vector2 pos)
     {
-        obj.setPosition(pos);
+        obj.setPosition((sf::Vector2f) pos);
+        shape.update();
+    }
+
+    void setRotation(float rot)
+    {
+        obj.setRotation(rot);
         shape.update();
     }
 

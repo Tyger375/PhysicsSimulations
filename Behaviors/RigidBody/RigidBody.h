@@ -29,7 +29,7 @@ class RigidBody {
 private:
     sf::RectangleShape* parent;
     CollisionShape* collisionShape;
-    sf::Vector2f velocity{};
+    Vector2 velocity{};
 
     CollisionDetection cdType;
     float mass;
@@ -44,9 +44,9 @@ public:
 
     void update();
 
-    void addForce(sf::Vector2f force, ForceMode mode=FORCE)
+    void addForce(Vector2 force, ForceMode mode=FORCE)
     {
-        sf::Vector2f v;
+        Vector2 v;
         if (mode == FORCE)
         {
             //Force => v is Kg*m/s^2
@@ -67,9 +67,9 @@ public:
     }
 
     //Collision detection
-    bool checkDiscreteCollision(sf::Vector2f, const sf::RectangleShape&);
-    bool checkContinuousCollision(sf::Vector2f, const sf::RectangleShape&, sf::Vector2f);
-    bool isOnGround(sf::Vector2f, sf::Vector2f, sf::Vector2f);
+    bool checkDiscreteCollision(Vector2, const sf::RectangleShape&);
+    bool checkContinuousCollision(Vector2, const sf::RectangleShape&, Vector2);
+    bool isOnGround(Vector2, Vector2, Vector2);
 };
 
 

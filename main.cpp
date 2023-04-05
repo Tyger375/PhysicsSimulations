@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include "Object.h"
+#include "Vector2/Vector2.h"
 
 float GlobalVars::deltaTime = 0.f;
 int GlobalVars::size = 1;
@@ -15,7 +16,7 @@ int main() {
 
     sf::Clock deltaTimeClock;
 
-    auto size = sf::Vector2f(50, 50);
+    auto size = Vector2(50, 50);
     Object obj(size, size);
 
 
@@ -63,7 +64,7 @@ int main() {
         clock.restart();
         if (elapsedTime.asMilliseconds() > 2000)
         {
-            //obj.rb.addForce(sf::Vector2f(0, -1.f) * 9.81f * 20.f, FORCE);
+            //obj.rb.addForce(Vector2f(0, -1.f) * 9.81f * 20.f, FORCE);
             elapsedTime = sf::milliseconds(0);
         }
 

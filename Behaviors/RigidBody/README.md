@@ -15,7 +15,7 @@ Types of collision detection
 
 ### Discrete
 
-Discrete collision detection simply uses aabb algorithm and detects if there is a collision on the position where the object wants to go
+Discrete collision detection simply uses aabb/sat algorithm and detects if there is a collision on the position where the object wants to go
 <br><br>
 #### Pros:
 + Low computational cost
