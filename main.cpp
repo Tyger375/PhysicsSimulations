@@ -9,7 +9,6 @@ float GlobalVars::deltaTime = 0.f;
 int GlobalVars::size = 1;
 sf::RectangleShape* GlobalVars::grounds = new sf::RectangleShape[GlobalVars::size];
 
-
 int main() {
     sf::RenderWindow window(sf::VideoMode(500, 500), "Test");
     window.setFramerateLimit(200);
@@ -18,12 +17,13 @@ int main() {
 
     auto size = Vector2(50, 50);
     Object obj(size, size);
+    obj.setPosition(Vector2(size.x/2, size.y/2) + Vector2(40, 0));
 
 
-    sf::RectangleShape ground;
-    ground.setSize(sf::Vector2f(500, 50));
-    ground.setFillColor(sf::Color::Green);
-    ground.setPosition(0, 450);
+    auto groundSize = Vector2(500, 50);
+    Object ground(groundSize, groundSize, sf::Color::Green);
+    ground.setRotation(0);
+    ground.setPosition(Vector2(250, 400));
 
 
     sf::Text txtFPS;
@@ -36,7 +36,7 @@ int main() {
         txtFPS.setFillColor(sf::Color::White);
     }
 
-    GlobalVars::grounds[0] = ground;
+    GlobalVars::grounds[0] = ground.getSprite();
 
     sf::Clock clock;
     sf::Time elapsedTime;
@@ -70,8 +70,10 @@ int main() {
 
         obj.update();
         window.draw(obj.getSprite());
+        //window.draw(obj.debugBounds());
 
-        window.draw(ground);
+        window.draw(ground.getSprite());
+        //window.draw(ground.debugBounds());
 
         if (textEnabled)
             window.draw(txtFPS);

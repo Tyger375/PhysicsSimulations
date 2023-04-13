@@ -40,24 +40,13 @@ class CollisionShape {
         const unsigned int length = s.getPointCount();
         auto vertices = new Vector2[length];
 
-        auto angle = s.getRotation();
-        //Angle in radians
-        auto w = (angle * M_PI) / 180;
         for (int i = 0; i < length; i++)
         {
             auto vertex = s.getPoint(i);
 
-            auto x = vertex.x;
-            auto y = vertex.y;
+            auto p = s.getTransform().transformPoint(vertex);
 
-            auto cosW = (float) cos(w);
-            auto sinW = (float) sin(w);
-
-            float newX = x*cosW - y*sinW;
-            float newY = x*sinW + y*cosW;
-            //Since SFML uses local position for vertices and doesn't include rotation
-            //Transforming local position to global and updating the position based on shape's rotation
-            vertices[i] = s.getPosition() + Vector2(newX, newY);
+            vertices[i] = p;
         }
 
         return vertices;
@@ -67,15 +56,13 @@ class CollisionShape {
     {
         const unsigned int length = s.getPointCount();
         auto axes = new Vector2[length];
-        //auto vertices = getGlobalVertices(s);
+        auto vertices = getGlobalVertices(s);
         for (int i = 0; i < length; i++)
         {
             //Getting vertex
-            //auto v1 = vertices[i];
-            auto v1 = s.getPoint(i);
+            auto v1 = vertices[i];
             //Getting other vertex
-            //auto v2 = vertices[i+1 == length ? 0 : i+1];
-            auto v2 = s.getPoint(i+1 == length ? 0 : i+1);
+            auto v2 = vertices[i+1 == length ? 0 : i+1];
 
             Vector2 edge = v1 - v2;
 
@@ -109,6 +96,7 @@ public:
         this->sprite = obj;
         this->size = size;
         bounds.setSize((sf::Vector2f) size);
+        bounds.setOrigin(sf::Vector2f(size.x/2, size.y/2));
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 

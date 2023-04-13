@@ -10,16 +10,17 @@
 class Object {
 private:
     sf::RectangleShape obj;
-    CollisionShape shape;
 public:
+    CollisionShape shape;
     RigidBody rb;
 
-    Object(Vector2 size, Vector2 collisionSize) :
+    Object(Vector2 size, Vector2 collisionSize, sf::Color color=sf::Color::Red) :
         shape(&obj, collisionSize),
         rb(&obj, &shape, CONTINUOUS, 1)
     {
         obj.setSize((sf::Vector2f) size);
-        obj.setFillColor(sf::Color::Red);
+        obj.setOrigin(sf::Vector2f(size.x/2, size.y/2));
+        obj.setFillColor(color);
     }
 
     void setPosition(Vector2 pos)

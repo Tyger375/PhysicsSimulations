@@ -33,6 +33,8 @@ private:
 
     CollisionDetection cdType;
     float mass;
+    float elapsedTime = 0.f;
+    const float Fc = 0.1; //Friction coefficient
 public:
     RigidBody(sf::RectangleShape* parent, CollisionShape* bounds, CollisionDetection collisionDetectionType, float mass)
     {
@@ -69,7 +71,7 @@ public:
     //Collision detection
     bool checkDiscreteCollision(Vector2, const sf::RectangleShape&);
     bool checkContinuousCollision(Vector2, const sf::RectangleShape&, Vector2);
-    bool isOnGround(Vector2, Vector2, Vector2);
+    bool isOnGround(Vector2, Vector2, Vector2, sf::RectangleShape*);
 };
 
 
