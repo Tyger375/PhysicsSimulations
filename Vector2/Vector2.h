@@ -94,11 +94,11 @@ public:
     }
     #pragma endregion
 
-    inline float dot(const Vector2& other) { return this->x * other.x + this->y * other.y; }
+    [[nodiscard]] inline float dot(const Vector2& other) const { return this->x * other.x + this->y * other.y; }
 
-    inline float magnitude() { return std::sqrt(dot(*this)); }
+    [[nodiscard]] inline float magnitude() const { return std::sqrt(dot(*this)); }
 
-    inline Vector2 normalize() { return *this / magnitude(); }
+    [[nodiscard]] inline Vector2 normalize() const { return *this / magnitude(); }
 };
 
 

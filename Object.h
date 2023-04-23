@@ -6,12 +6,13 @@
 #include "Behaviors/RigidBody/RigidBody.h"
 #include "Behaviors/CollisionShape/CollisionShape.h"
 #include "Vector2/Vector2.h"
+#include "Behaviors/RectangleShape/RectangleShape.h"
 
 class Object {
 private:
     sf::RectangleShape obj;
 public:
-    CollisionShape shape;
+    RectangleShape shape;
     RigidBody rb;
 
     Object(Vector2 size, Vector2 collisionSize, sf::Color color=sf::Color::Red) :
@@ -42,7 +43,7 @@ public:
     }
 
     inline sf::RectangleShape getSprite() { return obj; }
-    inline sf::RectangleShape debugBounds() { return *shape.getBounds(); }
+    inline CollisionShape* getBounds() { return &shape; }
 };
 
 

@@ -5,8 +5,11 @@ void RigidBody::update() {
 
     auto oldVelocity = this->velocity;
 
-    //Adding gravity
-    this->velocity -= Vector2(0, PhysicsLaws::GravityAcceleration * deltaTime);
+    if (useGravity)
+    {
+        //Adding gravity
+        this->velocity -= Vector2(0, PhysicsLaws::GravityAcceleration * deltaTime);
+    }
 
     auto pos = Vector2(parent->getPosition());
     //s(t) = s0 + v0 * t + 0.5 * a * t^2
@@ -17,21 +20,20 @@ void RigidBody::update() {
     m *= 1000.f;
     pos += m;
 
-    sf::RectangleShape obj;
+    CollisionShape* obj;
     if (!isOnGround(parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj) || velocity.y < 0)
     {
         parent->setPosition((sf::Vector2f) pos);
     }
     else
     {
-        elapsedTime += deltaTime;
-
-        auto doneRotating = std::abs(obj.getRotation() - parent->getRotation()) < 1.f;
+        auto b = obj->getBounds();
+        auto doneRotating = std::abs(b->getRotation() - parent->getRotation()) < 1.f;
 
         if (!doneRotating)
         {
-            auto lerpDuration = velocity.y / 2;
-            parent->setRotation(math::lerp(parent->getRotation(), obj.getRotation(), elapsedTime / lerpDuration));
+            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 100);
+            parent->setRotation(angle);
         }
         if (velocity.x != 0)
         {
@@ -46,7 +48,8 @@ void RigidBody::update() {
         if (doneRotating)
         {
             //Inclined plane
-            auto angle = obj.getRotation();
+            auto angle = parent->getRotation();
+
             auto w = (float) math::degToRad(angle);
             auto Fp = mass * PhysicsLaws::GravityAcceleration;
             auto FParallel = Fp * std::sin(w);
@@ -64,6 +67,7 @@ void RigidBody::update() {
                     ParallelAcceleration * std::cos(wAlpha)
                     );
 
+            //std::cout << angle << acceleration << std::endl;
             velocity -= acceleration * deltaTime;
         }
     }
@@ -71,18 +75,27 @@ void RigidBody::update() {
 
 #pragma region "Collision detection"
 
-bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel, sf::RectangleShape* ref) {
+bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel, CollisionShape** ref) {
     bool finalColliding = false;
     for (int i = 0; i < GlobalVars::size; i++)
     {
         auto m = GlobalVars::grounds[i];
         bool colliding = false;
         if (cdType == CollisionDetection::DISCRETE)
-            colliding = checkDiscreteCollision(newPosition, m);
+            colliding = checkDiscreteCollision(newPosition, *m);
         else if (cdType == CollisionDetection::CONTINUOUS)
-            colliding = checkContinuousCollision(oldPosition, m, vel);
+            colliding = checkContinuousCollision(oldPosition, *m, vel);
 
-        bool isGround = parent->getPosition().y < m.getPosition().y;
+        bool isGround = false;
+        for (int k = 0; k < parent->getPointCount(); k++)
+        {
+            auto vertex = parent->getPoint(k);
+            for (int j = 0; j < m->getBounds()->getPointCount(); j++)
+            {
+                auto vertex2 = m->getBounds()->getPoint(j);
+                isGround = isGround || vertex.y < vertex2.y;
+            }
+        }
         if (colliding && isGround)
         {
             finalColliding = true;
@@ -94,22 +107,20 @@ bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel
     return finalColliding;
 }
 
-bool RigidBody::checkContinuousCollision(const Vector2 startPos, const sf::RectangleShape& m, Vector2 vel) {
-    const float precision = 0.0001f;
+bool RigidBody::checkContinuousCollision(const Vector2 startPos, CollisionShape& m, Vector2 vel) {
+    const float precision = 0.001f;
     const int max = (int)(1 / precision);
 
     auto distance = vel;
     auto sprite = parent;
-    auto bounds = collisionShape->getBounds();
 
-    bool colliding = false;
+    bool colliding;
     for (int i = 0; i <= max; i++) {
         float j = (float)i / (float)max;
 
         auto pos = startPos + (distance * j * GlobalVars::deltaTime * 1000.f);
-        auto difference = (sprite->getSize() - bounds->getSize()) / 2.f;
 
-        colliding = checkDiscreteCollision(pos + difference, m);
+        colliding = checkDiscreteCollision(pos, m);
         if (colliding)
         {
             sprite->setPosition((sf::Vector2f) pos);
@@ -120,7 +131,7 @@ bool RigidBody::checkContinuousCollision(const Vector2 startPos, const sf::Recta
     return colliding;
 }
 
-bool RigidBody::checkDiscreteCollision(Vector2 endPos, const sf::RectangleShape& m)
+bool RigidBody::checkDiscreteCollision(Vector2 endPos, CollisionShape& m)
 {
     collisionShape->getBounds()->setPosition((sf::Vector2f) endPos);
     return collisionShape->satCollision(m);

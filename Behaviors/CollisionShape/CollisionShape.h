@@ -4,14 +4,17 @@
 #include <SFML/Graphics.hpp>
 #include <valarray>
 #include <iostream>
-#include "../../main.h"
 #include "../../Vector2/Vector2.h"
 #include <string>
 
+enum ShapeType
+{
+    CIRCLE, RECTANGLE
+};
+
 class CollisionShape {
-    sf::RectangleShape* sprite;
-    sf::RectangleShape bounds;
-    Vector2 size;
+protected:
+    sf::Shape* sprite{};
 
     #pragma region SAT COLLISION DETECTION
 
@@ -91,22 +94,23 @@ class CollisionShape {
 
     #pragma endregion
 public:
-    CollisionShape(sf::RectangleShape* obj, Vector2 size)
+    CollisionShape() = default;
+    explicit CollisionShape(sf::Shape* obj)
     {
         this->sprite = obj;
-        this->size = size;
-        bounds.setSize((sf::Vector2f) size);
-        bounds.setOrigin(sf::Vector2f(size.x/2, size.y/2));
-        bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 
-    bool aabbCollision(const sf::RectangleShape&);
+    virtual ShapeType getType() = 0;
 
-    bool satCollision(const sf::Shape&);
+    virtual bool aabbCollision(CollisionShape&) = 0;
 
-    void update();
+    virtual bool satCollision(CollisionShape&) = 0;
 
-    inline sf::RectangleShape* getBounds() { return &bounds; }
+    virtual void update() = 0;
+
+    virtual inline sf::Shape* getBounds() = 0;
+
+    virtual inline Vector2 getSize() = 0;
 };
 
 

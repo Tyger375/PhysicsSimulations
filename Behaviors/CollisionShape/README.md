@@ -8,6 +8,7 @@ I've implemented two algorithms of collision detection
 
 + [AABB](#aabb)
 + [SAT](#sat) (actually used in the simulation)
++ [Circle-Polygon collision](#circle-polygon-collision)
 
 ## AABB
 ![img.png](Images/aabb_algorithm.png)
@@ -31,4 +32,4 @@ This algorithm works with every convex shape and every rotation
 ![sat.png](Images/sat_algorithm.png)
 
 Basically, we make a projection of both shapes on every axis.<br>
-If all of the projections overlap, the objects are colliding. 
+If all the projections overlap, the objects are colliding.

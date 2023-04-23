@@ -27,21 +27,29 @@ enum ForceMode
 
 class RigidBody {
 private:
-    sf::RectangleShape* parent;
+    sf::Shape* parent;
     CollisionShape* collisionShape;
     Vector2 velocity{};
 
     CollisionDetection cdType;
     float mass;
-    float elapsedTime = 0.f;
     const float Fc = 0.1; //Friction coefficient
 public:
-    RigidBody(sf::RectangleShape* parent, CollisionShape* bounds, CollisionDetection collisionDetectionType, float mass)
+    bool useGravity;
+
+    RigidBody(
+            sf::Shape* parent,
+            CollisionShape* bounds,
+            CollisionDetection collisionDetectionType,
+            float mass,
+            bool useGravity = true
+            )
     {
         this->parent = parent;
         this->collisionShape = bounds;
         this->cdType = collisionDetectionType;
         this->mass = mass;
+        this->useGravity = true;
     }
 
     void update();
@@ -69,9 +77,9 @@ public:
     }
 
     //Collision detection
-    bool checkDiscreteCollision(Vector2, const sf::RectangleShape&);
-    bool checkContinuousCollision(Vector2, const sf::RectangleShape&, Vector2);
-    bool isOnGround(Vector2, Vector2, Vector2, sf::RectangleShape*);
+    bool checkDiscreteCollision(Vector2, CollisionShape&);
+    bool checkContinuousCollision(Vector2, CollisionShape&, Vector2);
+    bool isOnGround(Vector2, Vector2, Vector2, CollisionShape**);
 };
 
 
