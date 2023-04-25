@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "Vector2/Vector2.h"
 #include "Rope/Rope.h"
+#include "Rope/RopeRigidBody.h"
 
 float GlobalVars::deltaTime = 0.f;
 int GlobalVars::size = 2;
@@ -18,7 +19,7 @@ int main() {
 
     auto size = Vector2(50, 50);
     Object obj(size, size);
-    obj.setPosition(Vector2(size.x/2, size.y/2) + Vector2(40, 100));
+    obj.setPosition(Vector2(size.x/2, size.y/2) + Vector2(40, -0));
 
 
     auto groundSize = Vector2(500, 50);
@@ -46,7 +47,11 @@ int main() {
     sf::Clock clock;
     sf::Time elapsedTime;
 
-    Rope rope(Vector2(50, 50), Vector2(190, 50));
+    Rope rope(Vector2(150, 50), Vector2(290, 50));
+    RopeRigidBody ropeRb(&rope, CONTINUOUS, false);
+    ropeRb.addForce(Vector2(0, 1), VELOCITY);
+
+    auto start = false;
 
     while (window.isOpen())
     {
@@ -69,18 +74,22 @@ int main() {
         //Do something every 2 seconds
         elapsedTime += clock.getElapsedTime();
         clock.restart();
-        if (elapsedTime.asMilliseconds() > 2000)
+        if (elapsedTime.asMilliseconds() > 1000)
         {
             //obj.rb.addForce(Vector2f(0, -1.f) * 9.81f * 20.f, FORCE);
             //obj.setPosition(Vector2(25, 25));
             //rope.setEnd(Vector2(100, 20));
+            start = true;
             elapsedTime = sf::milliseconds(0);
         }
 
+        if (start)
+            ropeRb.update();
         rope.render(&window, true);
 
         //obj
-        obj.update();
+        if (start)
+            obj.update();
         window.draw(obj.getSprite());
 
         //Ground

@@ -22,14 +22,16 @@ enum ForceMode
 {
     ACCELERATION,
     FORCE,
-    IMPULSE
+    IMPULSE,
+    VELOCITY
 };
 
 class RigidBody {
-private:
+protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
     Vector2 velocity{};
+    Vector2 oldVelocity{};
 
     CollisionDetection cdType;
     float mass;
@@ -49,10 +51,10 @@ public:
         this->collisionShape = bounds;
         this->cdType = collisionDetectionType;
         this->mass = mass;
-        this->useGravity = true;
+        this->useGravity = useGravity;
     }
 
-    void update();
+    virtual void update();
 
     void addForce(Vector2 force, ForceMode mode=FORCE)
     {
@@ -72,13 +74,15 @@ public:
             //Momentum change => v is Kg*m/s
             v = force / mass;
         }
+        else if (mode == VELOCITY)
+            v = force;
 
         this->velocity += v;
     }
 
     //Collision detection
-    bool checkDiscreteCollision(Vector2, CollisionShape&);
-    bool checkContinuousCollision(Vector2, CollisionShape&, Vector2);
+    virtual bool checkDiscreteCollision(Vector2, CollisionShape&);
+    virtual bool checkContinuousCollision(Vector2, CollisionShape&, Vector2);
     bool isOnGround(Vector2, Vector2, Vector2, CollisionShape**);
 };
 

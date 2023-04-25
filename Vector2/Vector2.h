@@ -92,6 +92,14 @@ public:
     {
         return {this->x, this->y};
     }
+
+    friend bool operator==(const Vector2& first, const Vector2& other)
+    {
+        const float TOLERANCE = 0.1;
+        auto a = std::abs(first.x - other.x) < TOLERANCE;
+        auto b = std::abs(first.y - other.y) < TOLERANCE;
+        return a && b;
+    }
     #pragma endregion
 
     [[nodiscard]] inline float dot(const Vector2& other) const { return this->x * other.x + this->y * other.y; }

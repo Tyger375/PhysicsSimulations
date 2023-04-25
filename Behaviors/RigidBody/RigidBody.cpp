@@ -3,14 +3,14 @@
 void RigidBody::update() {
     auto deltaTime = GlobalVars::deltaTime;
 
-    auto oldVelocity = this->velocity;
-
     if (useGravity)
     {
         //Adding gravity
         this->velocity -= Vector2(0, PhysicsLaws::GravityAcceleration * deltaTime);
     }
 
+    if (velocity == Vector2())
+        return;
     auto pos = Vector2(parent->getPosition());
     //s(t) = s0 + v0 * t + 0.5 * a * t^2
     auto m = oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime);
@@ -71,6 +71,8 @@ void RigidBody::update() {
             velocity -= acceleration * deltaTime;
         }
     }
+
+    oldVelocity = this->velocity;
 }
 
 #pragma region "Collision detection"
