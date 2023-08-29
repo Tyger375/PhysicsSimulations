@@ -11,7 +11,6 @@ private:
     RopeMember* last{};
     CircleShape* lastCollision{};
 public:
-    Vector2 lastPos{};
     RopeRigidBody(
             Rope* rope,
             CollisionDetection collisionDetectionType,

@@ -32,7 +32,7 @@ void RigidBody::update() {
 
         if (!doneRotating)
         {
-            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 100);
+            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 50);
             parent->setRotation(angle);
         }
         if (velocity.x != 0)

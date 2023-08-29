@@ -32,7 +32,6 @@ public:
 class Rope {
 private:
     const float radius = 5;
-    const Vector2 length;
 public:
     std::vector<RopeMember> members;
 
@@ -65,6 +64,8 @@ public:
         auto value = (float)(round((double)distance().magnitude()/length.magnitude() * mult)) / mult;
         return std::clamp(value, 0.f, 1.f);
     }
+
+    const Vector2 length;
 };
 
 
