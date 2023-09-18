@@ -1,8 +1,9 @@
 #ifndef PHYSICSSIMULATIONS_ROPERIGIDBODY_H
 #define PHYSICSSIMULATIONS_ROPERIGIDBODY_H
 
-#include "../Behaviors/RigidBody/RigidBody.h"
 #include "Rope.h"
+#include "../Behaviors/RigidBody/RigidBody.h"
+#include "RopeMember.h"
 
 class RopeRigidBody : public RigidBody
 {

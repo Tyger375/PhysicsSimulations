@@ -73,46 +73,49 @@ void Rope::resize(Vector2 start, Vector2 end)
     members.emplace_back(end, radius,  sf::Color::Magenta);
 }
 
-void Rope::render(sf::RenderWindow *window, bool update)
+void Rope::render(sf::RenderWindow *window)
 {
     auto startPos = members[0].getSprite().getPosition();
     auto endPos = (Vector2) members.end().operator--()->getSprite().getPosition();
 
 
-    if (update)
+    auto f = getParabola();
+
+    auto l = endPos-startPos;
+    int size = (int) members.size();
+
+    for (int i = 1; i < size-1; i++)
     {
-        auto f = getParabola();
+        auto *member = &members[i];
 
-        auto l = endPos-startPos;
-        int size = (int) members.size();
+        float xPos;
+        float y;
 
-        for (int i = 1; i < size-1; i++)
+        if (std::abs(startPos.x - endPos.x) < .1)
         {
-            auto *member = &members[i];
-
-            float xPos;
-            float y;
-
-            if (std::abs(startPos.x - endPos.x) < .1)
-            {
-                float offset = length.magnitude() / (float)(size-1);
-                y = startPos.x + offset * (float)i;
-                xPos = startPos.x;
-            }
-            else
-            {
-                float offset = l.x / ((float)(size-1));
-                xPos = startPos.x + offset * (float)(i);
-                y = (float) f(xPos);
-            }
-
-            member->setPosition(Vector2(xPos, y));
+            float offset = length.magnitude() / (float)(size-1);
+            y = startPos.x + offset * (float)i;
+            xPos = startPos.x;
         }
+        else
+        {
+            float offset = l.x / ((float)(size-1));
+            xPos = startPos.x + offset * (float)(i);
+            y = (float) f(xPos);
+        }
+
+        member->setPosition(Vector2(xPos, y));
     }
 
     for (auto member : members)
     {
         window->draw(member.getSprite());
+    }
+}
+
+void Rope::update() {
+    for (auto behavior : behaviors) {
+        behavior->update();
     }
 }
 

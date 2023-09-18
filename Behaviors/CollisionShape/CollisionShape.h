@@ -5,6 +5,7 @@
 #include <valarray>
 #include <iostream>
 #include "../../Vector2/Vector2.h"
+#include "../Behavior.h"
 #include <string>
 
 enum ShapeType
@@ -12,7 +13,7 @@ enum ShapeType
     CIRCLE, RECTANGLE
 };
 
-class CollisionShape {
+class CollisionShape : public Behavior {
 protected:
     sf::Shape* sprite{};
 
@@ -105,8 +106,6 @@ public:
     virtual bool aabbCollision(CollisionShape&) = 0;
 
     virtual bool satCollision(CollisionShape&) = 0;
-
-    virtual void update() = 0;
 
     virtual inline sf::Shape* getBounds() = 0;
 

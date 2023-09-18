@@ -4,32 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include "../Behaviors/CircleShape/CircleShape.h"
 #include "../main.h"
+#include "../Entity.h"
+#include "RopeMember.h"
 #include <cmath>
 #include <functional>
 
-class RopeMember
-{
-    sf::CircleShape shape;
-    CircleShape collision;
-public:
-    RopeMember(Vector2 pos, float radius, sf::Color c=sf::Color::Yellow)
-        : collision(&shape, radius)
-    {
-        shape.setRadius(radius);
-        shape.setPosition((sf::Vector2f) pos);
-        shape.setFillColor(c);
-    }
-
-    void setPosition(Vector2 pos)
-    {
-        shape.setPosition((sf::Vector2f) pos);
-        collision.update();
-    }
-    sf::CircleShape getSprite() { return shape; }
-    sf::CircleShape* pointer() { return &shape; }
-};
-
-class Rope {
+class Rope : public Entity {
 private:
     const float radius = 5;
 public:
@@ -44,7 +24,9 @@ public:
 
     std::function<double(double)> getParabola();
 
-    void render(sf::RenderWindow* window, bool update=false);
+    void render(sf::RenderWindow*) override;
+
+    void update() override;
 
     void setEnd(Vector2 pos);
 

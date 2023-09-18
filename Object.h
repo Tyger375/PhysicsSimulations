@@ -7,8 +7,9 @@
 #include "Behaviors/CollisionShape/CollisionShape.h"
 #include "Vector2/Vector2.h"
 #include "Behaviors/RectangleShape/RectangleShape.h"
+#include "Entity.h"
 
-class Object {
+class Object : public Entity {
 private:
     sf::RectangleShape obj;
 public:
@@ -19,6 +20,8 @@ public:
         shape(&obj, collisionSize),
         rb(&obj, &shape, CONTINUOUS, 1)
     {
+        AddBehavior(&rb);
+        AddBehavior(&shape);
         obj.setSize((sf::Vector2f) size);
         obj.setOrigin(sf::Vector2f(size.x/2, size.y/2));
         obj.setFillColor(color);
@@ -36,11 +39,13 @@ public:
         shape.update();
     }
 
-    void update()
+    void update() override
     {
         rb.update();
         shape.update();
     }
+
+    void render(sf::RenderWindow* window) override;
 
     inline sf::RectangleShape getSprite() { return obj; }
     inline CollisionShape* getBounds() { return &shape; }

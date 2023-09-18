@@ -22,7 +22,9 @@ add_executable(
         Object.h
         Object.cpp
         Vector2/Vector2.h
-)
+        Simulations.h Entity.h Behaviors/Behavior.h Rope/RopeMember.h)
+
+target_compile_definitions(Test PUBLIC SIMULATION_NAME="test")
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_DIR C:/SFML_32/lib/cmake/SFML)

@@ -2,12 +2,12 @@
 #define PHYSICSSIMULATIONS_MAIN_H
 
 #include "Behaviors/CollisionShape/CollisionShape.h"
+#include "Entity.h"
 
 namespace GlobalVars
 {
     extern float deltaTime;
-    extern std::vector<CollisionShape*> grounds;
-    extern int size;
+    extern std::vector<Entity*> entities;
 }
 
 namespace math

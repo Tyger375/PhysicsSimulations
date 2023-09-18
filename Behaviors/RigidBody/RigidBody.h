@@ -26,7 +26,7 @@ enum ForceMode
     VELOCITY
 };
 
-class RigidBody {
+class RigidBody : public Behavior {
 protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
@@ -54,7 +54,7 @@ public:
         this->useGravity = useGravity;
     }
 
-    virtual void update();
+    void update() override;
 
     void addForce(Vector2 force, ForceMode mode=FORCE)
     {

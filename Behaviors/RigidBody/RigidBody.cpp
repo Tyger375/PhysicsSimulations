@@ -79,9 +79,14 @@ void RigidBody::update() {
 
 bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel, CollisionShape** ref) {
     bool finalColliding = false;
-    for (int i = 0; i < GlobalVars::size; i++)
+    for (auto & entity : GlobalVars::entities)
     {
-        auto m = GlobalVars::grounds[i];
+        auto* rb = entity->TryGetBehavior<RigidBody>();
+        if (rb != nullptr && rb == this)
+            continue;
+        auto* m = entity->TryGetBehavior<CollisionShape>();
+        if (m == nullptr)
+            continue;
         bool colliding = false;
         if (cdType == CollisionDetection::DISCRETE)
             colliding = checkDiscreteCollision(newPosition, *m);

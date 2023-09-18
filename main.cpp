@@ -6,10 +6,10 @@
 #include "Vector2/Vector2.h"
 #include "Rope/Rope.h"
 #include "Rope/RopeRigidBody.h"
+#include "Simulations.h"
 
 float GlobalVars::deltaTime = 0.f;
-int GlobalVars::size = 2;
-std::vector<CollisionShape*> GlobalVars::grounds;
+std::vector<Entity*> GlobalVars::entities;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(500, 500), "Test");
@@ -17,19 +17,9 @@ int main() {
 
     sf::Clock deltaTimeClock;
 
-    auto size = Vector2(50, 50);
-    Object obj(size, size);
-    obj.setPosition(Vector2(size.x/2, size.y/2) + Vector2(40, -0));
-
-
-    auto groundSize = Vector2(500, 50);
-    Object ground(groundSize, groundSize, sf::Color::Green);
-    ground.setRotation(20);
-    ground.setPosition(Vector2(-100, 300));
-
-    auto ground2Size = Vector2(500 * 10, 50);
-    Object ground2(ground2Size, ground2Size, sf::Color::Blue);
-    ground2.setPosition(Vector2(250, 450));
+    //Simulations::Test();
+    //Simulations::RopeTest();
+    Simulations::Projectile();
 
     sf::Text txtFPS;
     sf::Font font;
@@ -41,15 +31,8 @@ int main() {
         txtFPS.setFillColor(sf::Color::White);
     }
 
-    GlobalVars::grounds.push_back(ground.getBounds());
-    GlobalVars::grounds.push_back(ground2.getBounds());
-
     sf::Clock clock;
     sf::Time elapsedTime;
-
-    Rope rope(Vector2(150, 50), Vector2(290, 50));
-    RopeRigidBody ropeRb(&rope, CONTINUOUS, false);
-    ropeRb.addForce(Vector2(0, 1), VELOCITY);
 
     auto start = false;
 
@@ -83,19 +66,17 @@ int main() {
             elapsedTime = sf::milliseconds(0);
         }
 
-        if (start)
-            ropeRb.update();
-        rope.render(&window, true);
+        if (start) {
+            for (auto entity: GlobalVars::entities) {
+                entity->update();
+            }
+        }
 
         //obj
-        if (start)
-            obj.update();
-        window.draw(obj.getSprite());
 
-        //Ground
-        window.draw(ground.getSprite());
-        window.draw(ground2.getSprite());
-
+        for (auto entity: GlobalVars::entities) {
+            entity->render(&window);
+        }
 
         if (textEnabled)
             window.draw(txtFPS);
