@@ -33,9 +33,11 @@ public:
     Vector2 distance()
     {
         return
-            (members.end().operator--()->getSprite().getPosition()
-            -
-            members.begin()->getSprite().getPosition());
+            Vector2(
+                    members.end().operator--()->getSprite().getPosition()
+                        -
+                        members.begin()->getSprite().getPosition()
+                        );
     }
 
     float getTension()

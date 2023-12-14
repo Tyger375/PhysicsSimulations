@@ -7,7 +7,7 @@ bool CircleShape::collidingWithRectangle(CollisionShape& m)
     auto radius = bounds.getRadius();
     //Other object
     auto size = m.getSize();
-    auto pos = m.getBounds()->getPosition() - (size / 2.f);
+    auto pos = (Vector2)m.getBounds()->getPosition() - (size / 2.f);
 
     //Works with every convex shape
 

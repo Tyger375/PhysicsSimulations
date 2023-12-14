@@ -1,4 +1,5 @@
 #include "Rope.h"
+#include "RopeRigidBody.h"
 
 std::function<double(double)> Rope::getParabola()
 {
@@ -75,7 +76,7 @@ void Rope::resize(Vector2 start, Vector2 end)
 
 void Rope::render(sf::RenderWindow *window)
 {
-    auto startPos = members[0].getSprite().getPosition();
+    auto startPos = (Vector2)members[0].getSprite().getPosition();
     auto endPos = (Vector2) members.end().operator--()->getSprite().getPosition();
 
 
@@ -111,6 +112,9 @@ void Rope::render(sf::RenderWindow *window)
     {
         window->draw(member.getSprite());
     }
+
+    auto rb = TryGetBehavior<RopeRigidBody>();
+    rb->debug(window);
 }
 
 void Rope::update() {

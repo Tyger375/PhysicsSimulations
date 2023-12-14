@@ -30,13 +30,13 @@ class RigidBody : public Behavior {
 protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
-    Vector2 velocity{};
     Vector2 oldVelocity{};
 
     CollisionDetection cdType;
     float mass;
     const float Fc = 0.1; //Friction coefficient
 public:
+    Vector2 velocity{};
     bool useGravity;
 
     RigidBody(

@@ -1,6 +1,7 @@
 #ifndef PHYSICSSIMULATIONS_MAIN_H
 #define PHYSICSSIMULATIONS_MAIN_H
 
+#include <Math/Math.h>
 #include "Behaviors/CollisionShape/CollisionShape.h"
 #include "Entity.h"
 
@@ -26,6 +27,24 @@ namespace math
     static float sign(float x)
     {
         return (x > 0) ? 1.f : ((x < 0) ? -1.f : 0.f);
+    }
+}
+
+namespace Debug {
+    struct Line {
+        Vector2 start;
+        Vector2 direction;
+        float distance{};
+    };
+    static void drawLine(sf::RenderWindow* window, struct Line l)
+    {
+        sf::VertexArray line(sf::LineStrip, 2);
+        line[0].color = sf::Color::Red;
+        line[1].color = sf::Color::Red;
+
+        line[0].position = (sf::Vector2f)l.start;
+        line[1].position = (sf::Vector2f)(l.start + l.direction * l.distance);
+        window->draw(line);
     }
 }
 

@@ -3,8 +3,8 @@
 bool RectangleShape::collidingWithCircle(CollisionShape& circle)
 {
     //This object
-    auto size = bounds.getSize();
-    auto pos = bounds.getPosition() - (size / 2.f);
+    auto size = (Vector2)bounds.getSize();
+    auto pos = (Vector2)bounds.getPosition() - (size / 2.f);
 
     //Works with every convex shape
     auto radius = circle.getSize().magnitude();
@@ -40,7 +40,7 @@ bool RectangleShape::aabbCollision(CollisionShape& m)
         auto sY = size.y;
 
         //Other object
-        auto pos2 = m.getBounds()->getPosition() - (m.getSize() / 2.f);
+        auto pos2 = (Vector2)m.getBounds()->getPosition() - (m.getSize() / 2.f);
         auto p2X = pos2.x;
         auto p2Y = pos2.y;
         auto size2 = m.getSize();

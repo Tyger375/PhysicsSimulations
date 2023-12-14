@@ -27,7 +27,7 @@ public:
     bool satCollision(CollisionShape& m) override;
     void update() override;
 
-    inline Vector2 getSize() override { return bounds.getSize(); }
+    inline Vector2 getSize() override { return (Vector2)bounds.getSize(); }
 };
 
 

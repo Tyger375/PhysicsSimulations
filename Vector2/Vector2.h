@@ -23,9 +23,19 @@ public:
         this->y = y;
     }
 
-    Vector2(sf::Vector2f v) {
+    explicit Vector2(sf::Vector2f v) {
         this->x = v.x;
         this->y = v.y;
+    }
+
+    [[nodiscard]] std::string to_string() const {
+        std::string str;
+        str += "(";
+        str += std::to_string(x);
+        str += ", ";
+        str += std::to_string(y);
+        str += ")";
+        return str;
     }
 
     #pragma region Operators

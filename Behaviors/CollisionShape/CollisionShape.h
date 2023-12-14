@@ -42,7 +42,7 @@ protected:
     static Vector2* getGlobalVertices(const sf::Shape& s)
     {
         const unsigned int length = s.getPointCount();
-        auto vertices = new Vector2[length];
+        auto vertices = (Vector2*) malloc(sizeof (Vector2) * length);
 
         for (int i = 0; i < length; i++)
         {
@@ -50,7 +50,7 @@ protected:
 
             auto p = s.getTransform().transformPoint(vertex);
 
-            vertices[i] = p;
+            vertices[i] = (Vector2)p;
         }
 
         return vertices;
@@ -90,6 +90,7 @@ protected:
                 max = p;
             }
         }
+        delete vertices;
         return {min, max};
     }
 

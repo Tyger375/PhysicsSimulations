@@ -21,7 +21,7 @@ void RigidBody::update() {
     pos += m;
 
     CollisionShape* obj;
-    if (!isOnGround(parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj) || velocity.y < 0)
+    if (!isOnGround((Vector2)parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj) || velocity.y < 0)
     {
         parent->setPosition((sf::Vector2f) pos);
     }
@@ -32,24 +32,25 @@ void RigidBody::update() {
 
         if (!doneRotating)
         {
-            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 50);
+            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 5);
             parent->setRotation(angle);
         }
+
+        auto angle = parent->getRotation();
         if (velocity.x != 0)
         {
             pos.y = parent->getPosition().y;
             parent->setPosition((sf::Vector2f) pos);
         }
-        else if (velocity.y > 0)
+
+        if (velocity.y > 0 && angle == 0)
         {
-            velocity = sf::Vector2f();
+            velocity.y = 0.f;
         }
 
         if (doneRotating)
         {
             //Inclined plane
-            auto angle = parent->getRotation();
-
             auto w = (float) math::degToRad(angle);
             auto Fp = mass * PhysicsLaws::GravityAcceleration;
             auto FParallel = Fp * std::sin(w);
@@ -57,7 +58,20 @@ void RigidBody::update() {
             auto Fa = FOrthogonal * Fc;
 
             if (Fa < FParallel) //was Fa > FParallel, but we're working with negative values
+            {
+                if (abs(velocity.x) < 0.1)
+                {
+                    velocity.x = 0.f;
+                    return;
+                }
+                auto acceleration = Fa / mass;
+                auto sign = math::sign(velocity.x);
+                if (abs(acceleration) > velocity.x)
+                    acceleration = sign * -1 * velocity.x;
+                velocity.x += acceleration * deltaTime;
                 return;
+            }
+
             auto alpha = 90 - angle;
             auto wAlpha = (float) math::degToRad(alpha);
 
@@ -66,8 +80,12 @@ void RigidBody::update() {
                     ParallelAcceleration * std::sin(wAlpha),
                     ParallelAcceleration * std::cos(wAlpha)
                     );
+            /*auto frictionAcceleration = Fa / mass;
+            auto fAcceleration = Vector2(
+                    frictionAcceleration * std::sin(wAlpha),
+                    frictionAcceleration * std::cos(wAlpha)
+            );*/
 
-            //std::cout << angle << acceleration << std::endl;
             velocity -= acceleration * deltaTime;
         }
     }
