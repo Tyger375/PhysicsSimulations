@@ -3,7 +3,7 @@
 #include <SFML/System.hpp>
 #include "Object/Object.h"
 #include "GraphsManager/GraphsManager.h"
-#define SIMULATION 2
+//#define SIMULATION 2
 
 #if SIMULATION == 1
 #include "Simulations/Test.h"
