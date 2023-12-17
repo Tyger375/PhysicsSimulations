@@ -2,15 +2,19 @@
 #define PHYSICSSIMULATIONS_COLLISIONSHAPE_H
 
 #include <SFML/Graphics.hpp>
-#include <valarray>
 #include <iostream>
 #include "../../Vector2/Vector2.h"
 #include "../Behavior.h"
-#include <string>
 
 enum ShapeType
 {
     CIRCLE, RECTANGLE
+};
+
+struct Colliding {
+    bool collision = false;
+    Vector2 overlap;
+    Vector2 normal;
 };
 
 class CollisionShape : public Behavior {
@@ -19,8 +23,10 @@ protected:
 
     #pragma region SAT COLLISION DETECTION
 
-    static bool getCollision(Vector2* axes, unsigned int length, const sf::Shape& first, const sf::Shape& second)
+    static Colliding getCollision(Vector2* axes, unsigned int length, const sf::Shape& first, const sf::Shape& second)
     {
+        Vector2 leastOverlap = Vector2(1000000.f, 10000000.f);
+        Vector2 leastAxis;
         bool colliding = true;
         for (int i = 0; i < length; i++)
         {
@@ -34,9 +40,21 @@ protected:
                 colliding = false;
                 break;
             }
+            else {
+                auto newOverlap = Vector2(p1.x - p2.x, p1.y - p2.y);
+                if (leastOverlap.magnitude() > newOverlap.magnitude()) {
+                    leastOverlap = newOverlap;
+                    auto a = axis;
+                    if (p1.y > p2.y)
+                        a.y *= -1;
+                    if (p1.x > p2.x)
+                        a.x *= -1;
+                    leastAxis = a;
+                }
+            }
         }
 
-        return colliding;
+        return Colliding{colliding, leastOverlap, leastAxis};
     }
 
     static Vector2* getGlobalVertices(const sf::Shape& s)
@@ -96,8 +114,8 @@ protected:
 
     #pragma endregion
 public:
-    CollisionShape() = default;
-    explicit CollisionShape(sf::Shape* obj)
+    CollisionShape(sf::Shape* obj, Entity* parent) :
+            Behavior(parent)
     {
         this->sprite = obj;
     }
@@ -106,7 +124,7 @@ public:
 
     virtual bool aabbCollision(CollisionShape&) = 0;
 
-    virtual bool satCollision(CollisionShape&) = 0;
+    virtual Colliding satCollision(CollisionShape&) = 0;
 
     virtual inline sf::Shape* getBounds() = 0;
 

@@ -2,10 +2,9 @@
 #define PHYSICSSIMULATIONS_ROPERIGIDBODY_H
 
 #include "Rope.h"
-#include "../Behaviors/RigidBody/RigidBody.h"
 #include "RopeMember.h"
 
-class RopeRigidBody : public RigidBody
+class RopeRigidBody : public Behavior
 {
 private:
     Rope* rope;
@@ -15,27 +14,23 @@ private:
     float angularVel = 0.f;
     //Vector2 acceleration = Vector2(10.f, 10.f);
     std::vector<struct Debug::Line> debugs;
+
+    Vector2 oldVelocity;
 public:
-    RopeRigidBody(
+    Vector2 velocity;
+    explicit RopeRigidBody(
             Rope* rope,
-            CollisionDetection collisionDetectionType,
+            Entity* parent,
             bool useGravity = true
             ) :
+            Behavior(parent),
             last(&*rope->members.end().operator--()), // last member
             lastCollision(new CircleShape(
                     last->pointer(),
+                    last,
                     1
-            )), // last collision member
-            RigidBody(
-                    nullptr,
-                    nullptr,
-                    collisionDetectionType,
-                    1,
-                    useGravity
-            )
+            ))
     {
-        this->parent = last->pointer();
-        this->collisionShape = lastCollision;
         this->rope = rope;
         this->velocity = Vector2();
     }
@@ -67,7 +62,7 @@ public:
 
         //velocity = direction * velocity.magnitude();
 
-        auto pos = Vector2(parent->getPosition());
+        auto pos = Vector2(last->getSprite().getPosition());
         //s(t) = s0 + v0 * t + 0.5 * a * t^2
         auto m = 0.5f * velocity * deltaTime;
         //std::cout << m << std::endl;

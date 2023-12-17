@@ -11,7 +11,7 @@ private:
     bool collidingWithRectangle(CollisionShape&);
     bool collidingWithCircle(CollisionShape&);
 public:
-    CircleShape(sf::Shape *obj, float radius) : CollisionShape(obj)
+    CircleShape(sf::Shape *obj, Entity* parent, float radius) : CollisionShape(obj, parent)
     {
         bounds.setRadius(radius);
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
@@ -22,7 +22,7 @@ public:
     ShapeType getType() override { return CIRCLE; }
 
     bool aabbCollision(CollisionShape&) override;
-    bool satCollision(CollisionShape&) override;
+    Colliding satCollision(CollisionShape&) override;
     void update() override;
 
     inline Vector2 getSize() override { return {bounds.getRadius(), 0}; }

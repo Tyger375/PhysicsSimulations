@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "../Behaviors/CircleShape/CircleShape.h"
 #include "../main.h"
-#include "../Entity.h"
+#include "../Entity/Entity.h"
 #include "RopeMember.h"
 #include <cmath>
 #include <functional>

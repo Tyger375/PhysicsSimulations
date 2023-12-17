@@ -1,34 +1,26 @@
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include "Object/Object.h"
-#include "GraphsManager/GraphsManager.h"
-#define SIMULATION 2
-
+#define SIMULATION 3
 #if SIMULATION == 1
 #include "Simulations/Test.h"
 Simulations::Simulation* simulation = new TestSimulation();
 #elif SIMULATION == 2
 #include "Simulations/RopeTest.h"
 Simulations::Simulation* simulation = new RopeTestSimulation();
+#elif SIMULATION == 3
+#include "Simulations/Projectile.h"
+Simulations::Simulation* simulation = new ProjectileSimulation();
 #endif
+
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include "Entity/Entity.h"
 
 float GlobalVars::deltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
 
-bool everySeconds(sf::Clock* clock, float seconds)
-{
-    if ((float)clock->getElapsedTime().asMilliseconds() > (seconds * 1000))
-    {
-        clock->restart();
-        return true;
-    }
-    return false;
-}
-
 int main() {
     sf::RenderWindow window(sf::VideoMode(1500, 750), "Test");
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(200);
 
     sf::Text txtFPS;
     sf::Font font;
@@ -62,10 +54,9 @@ int main() {
         GlobalVars::deltaTime = simulation->deltaTimeClock.restart().asSeconds();
         simulation->time = (double) simulation->runTimeClock.getElapsedTime().asMilliseconds();
         float fps = 1.f / (GlobalVars::deltaTime);
+
         if (textEnabled)
             txtFPS.setString(std::to_string((int)fps));
-            //txtFPS.setString(std::to_string(ropeRb->velocity.magnitude()));
-
 
         sf::Event event{};
         while (window.pollEvent(event))
@@ -92,7 +83,7 @@ int main() {
 
         window.clear();
 
-        if (everySeconds(&simulation->clock, 3))
+        if (Utils::everySeconds(&simulation->clock, 3))
         {
             if (!simulation->start)
             {
@@ -131,7 +122,7 @@ int main() {
         if (textEnabled)
             window.draw(txtFPS);
 
-        if (everySeconds(&updateGraph, 0.05f))
+        if (Utils::everySeconds(&updateGraph, 0.1f))
         {
             simulation->graphsManager.render();
         }

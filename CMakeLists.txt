@@ -33,11 +33,14 @@ add_executable(
         Object/Object.h
         Object/Object.cpp
         Vector2/Vector2.h
-        Simulations/Simulations.h Entity.h Behaviors/Behavior.h Rope/RopeMember.h
+        Simulations/Simulations.h Entity/Entity.h Behaviors/Behavior.h Rope/RopeMember.h
         GraphsManager/GraphsManager.cpp
         GraphsManager/GraphsManager.h
         Simulations/Test.h
         Simulations/RopeTest.h
+        Simulations/Projectile.h
+        Utils.h
+        Entity/Entity.cpp
 )
 
 # target_compile_options(Test PUBLIC -Zc:__cplusplus)

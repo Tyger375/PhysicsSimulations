@@ -1,7 +1,6 @@
 #ifndef PHYSICSSIMULATIONS_RIGIDBODY_H
 #define PHYSICSSIMULATIONS_RIGIDBODY_H
 
-#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include "../../main.h"
@@ -33,19 +32,20 @@ protected:
     Vector2 oldVelocity{};
 
     CollisionDetection cdType;
-    float mass;
     const float Fc = 0.1; //Friction coefficient
 public:
+    float mass;
     Vector2 velocity{};
     bool useGravity;
 
     RigidBody(
             sf::Shape* parent,
+            Entity* entityParent,
             CollisionShape* bounds,
             CollisionDetection collisionDetectionType,
             float mass,
             bool useGravity = true
-            )
+            ) : Behavior(entityParent)
     {
         this->parent = parent;
         this->collisionShape = bounds;
@@ -54,36 +54,36 @@ public:
         this->useGravity = useGravity;
     }
 
+    void checkCollisions(Vector2, Vector2);
+
     void update() override;
 
     void addForce(Vector2 force, ForceMode mode=FORCE)
     {
-        Vector2 v;
         if (mode == FORCE)
         {
             //Force => v is Kg*m/s^2
-            v = (force * GlobalVars::deltaTime) / mass;
+            this->velocity += (force * GlobalVars::deltaTime) / mass;
         }
         else if (mode == ACCELERATION)
         {
             //Acceleration => v is m/s^2
-            v = force * GlobalVars::deltaTime;
+            this->velocity += force * GlobalVars::deltaTime;
         }
         else if (mode == IMPULSE)
         {
             //Momentum change => v is Kg*m/s
-            v = force / mass;
+            this->velocity += force / mass;
         }
         else if (mode == VELOCITY)
-            v = force;
-
-        this->velocity += v;
+            this->velocity += force;
     }
 
     //Collision detection
-    virtual bool checkDiscreteCollision(Vector2, CollisionShape&);
-    virtual bool checkContinuousCollision(Vector2, CollisionShape&, Vector2);
-    bool isOnGround(Vector2, Vector2, Vector2, CollisionShape**);
+    virtual Colliding checkDiscreteCollision(Vector2, CollisionShape&);
+    virtual Colliding checkContinuousCollision(Vector2, CollisionShape&, Vector2);
+
+    [[maybe_unused]] bool isOnGround(Vector2, Vector2, Vector2, CollisionShape**);
 };
 
 

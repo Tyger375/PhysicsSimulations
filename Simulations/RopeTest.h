@@ -2,13 +2,15 @@
 #define PHYSICSSIMULATIONS_ROPETEST_H
 
 #include "Simulations.h"
+#include "../Rope/Rope.h"
+#include "../Rope/RopeRigidBody.h"
 
 using namespace Simulations;
 
 class RopeTestSimulation : public Simulation {
 private:
     Rope rope = Rope(Vector2(150, 50), Vector2(290, 50));
-    RopeRigidBody ropeRb = RopeRigidBody(&rope, CONTINUOUS, false);
+    RopeRigidBody ropeRb = RopeRigidBody(&rope, false);
 public:
     void onCreate() override {
         ropeRb.velocity = Vector2(5.f, 0.f);

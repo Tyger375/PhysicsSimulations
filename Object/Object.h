@@ -7,7 +7,7 @@
 #include "../Behaviors/CollisionShape/CollisionShape.h"
 #include "../Vector2/Vector2.h"
 #include "../Behaviors/RectangleShape/RectangleShape.h"
-#include "../Entity.h"
+#include "../Entity/Entity.h"
 
 class Object : public Entity {
 private:

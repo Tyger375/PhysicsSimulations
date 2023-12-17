@@ -2,11 +2,17 @@
 #define PHYSICSSIMULATIONS_ENTITY_H
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include "Behaviors/Behavior.h"
-#include "main.h"
+#include "../Behaviors/Behavior.h"
+#include "../main.h"
+
+class Behavior;
 
 class Entity {
 public:
+    int id;
+
+    Entity();
+
     template <class T> T* TryGetBehavior() {
         for (auto behavior : behaviors) {
             T* a = dynamic_cast<T*>(behavior);
@@ -23,7 +29,6 @@ public:
 
     virtual void update() = 0;
     virtual void render(sf::RenderWindow*) = 0;
-
 protected:
     std::vector<Behavior*> behaviors;
 };

@@ -1,5 +1,4 @@
 #include "CircleShape.h"
-#include <iostream>
 
 bool CircleShape::collidingWithRectangle(CollisionShape& m)
 {
@@ -38,9 +37,11 @@ bool CircleShape::aabbCollision(CollisionShape& m)
     return false;
 }
 
-bool CircleShape::satCollision(CollisionShape& m)
+Colliding CircleShape::satCollision(CollisionShape& m)
 {
-    auto type = m.getType();
+    return Colliding{};
+    //TODO: reimplement
+    /*auto type = m.getType();
 
     if (type == CIRCLE)
         return collidingWithCircle(m);
@@ -49,7 +50,7 @@ bool CircleShape::satCollision(CollisionShape& m)
         return collidingWithRectangle(m);
     }
 
-    return false;
+    return false;*/
 }
 
 void CircleShape::update()

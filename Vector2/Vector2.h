@@ -1,6 +1,7 @@
 #ifndef PHYSICSSIMULATIONS_VECTOR2_H
 #define PHYSICSSIMULATIONS_VECTOR2_H
 
+#include <string>
 #include <cmath>
 #include <ostream>
 #include <SFML/System/Vector2.hpp>

@@ -2,11 +2,13 @@
 #define PHYSICSSIMULATIONS_MAIN_H
 
 #include <Math/Math.h>
-#include "Behaviors/CollisionShape/CollisionShape.h"
-#include "Entity.h"
+#include "Vector2/Vector2.h"
+#include <SFML/Graphics.hpp>
 
+class Entity;
 namespace GlobalVars
 {
+    extern int lastId;
     extern float deltaTime;
     extern std::vector<Entity*> entities;
 }

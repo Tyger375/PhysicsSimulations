@@ -23,7 +23,7 @@ public:
         canvas(std::make_unique<TCanvas>("canvas", "Physics simulations"))
     {
         canvas->SetWindowSize(1550, 700);
-        canvas->SetWindowPosition(/*-2048*/0, 0);
+        canvas->SetWindowPosition(-2048, 0);
     }
 
     void addGraph(const std::string& title);
