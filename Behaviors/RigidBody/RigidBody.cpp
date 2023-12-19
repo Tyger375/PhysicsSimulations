@@ -1,7 +1,8 @@
 #include "RigidBody.h"
 
 void RigidBody::update() {
-    auto deltaTime = GlobalVars::deltaTime;
+    auto deltaTime = GlobalVars::fixedDeltaTime;
+    //auto deltaTime = 1 / 40.f;
 
     if (useGravity)
     {
@@ -9,10 +10,11 @@ void RigidBody::update() {
         this->velocity -= Vector2(0, PhysicsLaws::GravityAcceleration * deltaTime);
     }
 
-    checkCollisions((Vector2)parent->getPosition(), 0.5f * velocity + oldVelocity);
+    checkCollisions((Vector2)parent->getPosition());
 
     if (velocity == Vector2())
         return;
+
     auto pos = Vector2(parent->getPosition());
     //s(t) = s0 + v0 * t + 0.5 * a * t^2
     auto m = oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime);
@@ -24,6 +26,7 @@ void RigidBody::update() {
     pos += m;
 
     parent->setPosition((sf::Vector2f) pos);
+
     /*if (!isOnGround((Vector2)parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj))
     {
 
@@ -103,7 +106,7 @@ void RigidBody::update() {
     oldVelocity = this->velocity;
 }
 
-void RigidBody::checkCollisions(Vector2 newPosition, Vector2 vel) {
+void RigidBody::checkCollisions(Vector2 newPosition) {
     for (auto & entity : GlobalVars::entities)
     {
         auto* rb2 = entity->TryGetBehavior<RigidBody>();
@@ -114,19 +117,26 @@ void RigidBody::checkCollisions(Vector2 newPosition, Vector2 vel) {
         auto* m = entity->TryGetBehavior<CollisionShape>();
         if (m == nullptr)
             continue;
-        auto c = checkContinuousCollision(newPosition, *m, vel);
+
+        Colliding c;
+        if (cdType == CollisionDetection::DISCRETE)
+            c = checkDiscreteCollision(newPosition, *m);
+        else if (cdType == CollisionDetection::CONTINUOUS)
+            c = checkContinuousCollision(newPosition, *m);
+
         if (c.collision) {
             auto rb = this;
             // Calculate relative velocity
             Vector2 rv = rb2->velocity - rb->velocity;
             // Calculate relative velocity in terms of the normal direction
             float velAlongNormal = rv.dot(c.normal);
+
             // Do not resolve if velocities are separating
             if(velAlongNormal > 0)
                 continue;
 
             // Calculate restitution
-            float e = 0.5;
+            float e = 0.5f;
 
             float inv_mass1;
             if (rb->mass == 0)
@@ -143,98 +153,53 @@ void RigidBody::checkCollisions(Vector2 newPosition, Vector2 vel) {
             float j = -(1 + e) * velAlongNormal;
             j /= inv_mass1 + inv_mass2;
             Vector2 impulse = j * c.normal;
-            float mass_sum = 100 + rb2->mass;
 
-            float ratio1 = rb->mass / mass_sum;
+            float ratio1 = inv_mass1;
             rb->velocity -= ratio1 * impulse;
 
-            auto ratio2 = rb2->mass / mass_sum;
+            auto ratio2 = inv_mass2;
             rb2->velocity += ratio2 * impulse;
+
+            //Fixing velocities so objects don't look buggy
+            if (abs(rb->velocity.magnitude()) < 0.8)
+            {
+                rb->velocity.x *= abs(c.normal.y);
+                rb->velocity.y *= abs(c.normal.x);
+            }
+
+            if (abs(rb2->velocity.magnitude()) < 0.8)
+            {
+                rb2->velocity.x *= abs(c.normal.y);
+                rb2->velocity.y *= abs(c.normal.x);
+            }
         }
-        /*if (cdType == CollisionDetection::DISCRETE)
-            colliding = checkDiscreteCollision(newPosition, *m);
-        else if (cdType == CollisionDetection::CONTINUOUS)
-            colliding = checkContinuousCollision(oldPosition, *m, vel);
-        if (colliding) {
-            auto rb2 = m->entity->TryGetBehavior<RigidBody>();
-            // Calculate relative velocity
-            Vector2 rv = rb2->velocity - rb->velocity;
-            // Calculate relative velocity in terms of the normal direction
-            float velAlongNormal = rv.dot(Vector2(1, 0));
-            // Do not resolve if velocities are separating
-            if(velAlongNormal > 0)
-                return;
-
-            // Calculate restitution
-            float e = 100;
-
-            // Calculate impulse scalar
-            float j = -(1 + e) * velAlongNormal;
-            j /= 1 / rb->mass + 1 / rb2->mass;
-            Vector2 impulse = j * Vector2(1, 0);
-            std::cout << "Colliding" << std::endl;
-            float mass_sum = rb->mass + rb2->mass;
-            float ratio = rb->mass / mass_sum;
-            rb->velocity -= ratio * impulse;
-            auto ratio = B.mass / mass_sum;
-            B.velocity += ratio * impulse;
-
-            break;
-        }*/
     }
 }
 
 #pragma region "Collision detection"
 
-bool RigidBody::isOnGround(Vector2 oldPosition, Vector2 newPosition, Vector2 vel, CollisionShape** ref) {
-    bool finalColliding = false;
-    for (auto & entity : GlobalVars::entities)
-    {
-        auto* rb = entity->TryGetBehavior<RigidBody>();
-        if (rb != nullptr && rb == this)
-            continue;
-        auto* m = entity->TryGetBehavior<CollisionShape>();
-        if (m == nullptr)
-            continue;
-        bool colliding = false;
-        if (cdType == CollisionDetection::DISCRETE)
-            colliding = checkDiscreteCollision(newPosition, *m).collision;
-        else if (cdType == CollisionDetection::CONTINUOUS)
-            colliding = checkContinuousCollision(oldPosition, *m, vel).collision;
+struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, CollisionShape& m) {
+    auto otherPos = (Vector2)m.getBounds()->getPosition();
+    auto deltaTime = GlobalVars::fixedDeltaTime;
+    auto finalPos = startPos + (oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime) * 1000.f);
+    if ((startPos.x > otherPos.x && finalPos.x < otherPos.x || velocity.x == 0) &&
+        (startPos.y > otherPos.y && finalPos.y < otherPos.y || velocity.y == 0))
+        return Colliding{false};
 
-        bool isGround = false;
-        for (int k = 0; k < parent->getPointCount(); k++)
-        {
-            auto vertex = parent->getPoint(k);
-            for (int j = 0; j < m->getBounds()->getPointCount(); j++)
-            {
-                auto vertex2 = m->getBounds()->getPoint(j);
-                isGround = isGround || vertex.y < vertex2.y;
-            }
-        }
-        if (colliding && isGround)
-        {
-            finalColliding = true;
-            *ref = m;
-            break;
-        }
-    }
+    //std::cout << entity->id << " " << m.entity->id << " yes" << std::endl;
 
-    return finalColliding;
-}
-
-struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, CollisionShape& m, Vector2 vel) {
-    const float precision = 0.001f;
+    const float precision = 0.01f;
     const int max = (int)(1 / precision);
 
-    auto distance = vel;
+    auto direction = finalPos - startPos;
     auto sprite = parent;
 
     Colliding colliding{false};
     for (int i = 0; i <= max; i++) {
         float j = (float)i / (float)max;
 
-        auto pos = startPos + (distance * j * GlobalVars::deltaTime * 1000.f);
+        //auto pos = startPos + (distance * j * deltaTime * 1000.f);
+        auto pos = startPos + j * direction;
 
         colliding = checkDiscreteCollision(pos, m);
         if (colliding.collision)
@@ -243,6 +208,8 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
             break;
         }
     }
+
+    //  std::cout << entity->id << " " << colliding.collision << std::endl;
 
     return colliding;
 }

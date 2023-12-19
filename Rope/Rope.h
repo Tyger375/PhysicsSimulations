@@ -28,6 +28,8 @@ public:
 
     void update() override;
 
+    void fixedUpdate() override;
+
     void setEnd(Vector2 pos);
 
     Vector2 distance()

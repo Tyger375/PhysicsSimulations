@@ -54,7 +54,7 @@ public:
         this->useGravity = useGravity;
     }
 
-    void checkCollisions(Vector2, Vector2);
+    void checkCollisions(Vector2);
 
     void update() override;
 
@@ -81,9 +81,7 @@ public:
 
     //Collision detection
     virtual Colliding checkDiscreteCollision(Vector2, CollisionShape&);
-    virtual Colliding checkContinuousCollision(Vector2, CollisionShape&, Vector2);
-
-    [[maybe_unused]] bool isOnGround(Vector2, Vector2, Vector2, CollisionShape**);
+    virtual Colliding checkContinuousCollision(Vector2, CollisionShape&);
 };
 
 

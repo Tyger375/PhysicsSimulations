@@ -25,6 +25,7 @@ public:
     sf::CircleShape* pointer() { return &shape; }
 
     void update() override {};
+    void fixedUpdate() override {};
     void render(sf::RenderWindow*) override {}
 };
 

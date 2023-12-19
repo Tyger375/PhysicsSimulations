@@ -95,6 +95,11 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
             obj.normal = c2.normal;
         }
 
+        if (c1.penetration > c2.penetration)
+            obj.penetration = c1.penetration;
+        else
+            obj.penetration = c2.penetration;
+
         return obj;
     }
 

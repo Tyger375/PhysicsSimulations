@@ -18,12 +18,7 @@ namespace Simulations {
         Simulation() :
                 start(false),
                 paused(false)
-        {
-            //Graphs
-            graphsManager.addGraph("Graph");
-            graphsManager.addGraph("Graph");
-            graphsManager.build();
-        }
+        {}
 
         virtual void onCreate() {}
         virtual void onEvent(sf::Event) {}

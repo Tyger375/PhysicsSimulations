@@ -10,6 +10,7 @@ namespace GlobalVars
 {
     extern int lastId;
     extern float deltaTime;
+    extern float fixedDeltaTime;
     extern std::vector<Entity*> entities;
 }
 

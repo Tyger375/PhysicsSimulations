@@ -28,6 +28,7 @@ public:
     }
 
     virtual void update() = 0;
+    virtual void fixedUpdate() = 0;
     virtual void render(sf::RenderWindow*) = 0;
 protected:
     std::vector<Behavior*> behaviors;

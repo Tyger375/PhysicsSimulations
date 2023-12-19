@@ -16,7 +16,7 @@ public:
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 
-    sf::RectangleShape * getBounds() override
+    sf::RectangleShape* getBounds() override
     {
         return &bounds;
     }

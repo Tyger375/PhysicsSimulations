@@ -13,6 +13,7 @@ enum ShapeType
 
 struct Colliding {
     bool collision = false;
+    float penetration{};
     Vector2 overlap;
     Vector2 normal;
 };
@@ -27,6 +28,7 @@ protected:
     {
         Vector2 leastOverlap = Vector2(1000000.f, 10000000.f);
         Vector2 leastAxis;
+        float greatestOverlap = 0.f;
         bool colliding = true;
         for (int i = 0; i < length; i++)
         {
@@ -41,20 +43,28 @@ protected:
                 break;
             }
             else {
-                auto newOverlap = Vector2(p1.x - p2.x, p1.y - p2.y);
-                if (leastOverlap.magnitude() > newOverlap.magnitude()) {
+                float minOverlap = std::max(p1.x, p2.x);
+                float maxOverlap = std::min(p1.y, p2.y);
+                auto newOverlap = Vector2(minOverlap, maxOverlap);
+                if (abs(leastOverlap.x - leastOverlap.y) > abs(newOverlap.x - newOverlap.y)) {
                     leastOverlap = newOverlap;
                     auto a = axis;
                     if (p1.y > p2.y)
                         a.y *= -1;
                     if (p1.x > p2.x)
                         a.x *= -1;
+
+                    /*if (minOverlap > greatestOverlap && greatestOverlap < xOverlap)
+                        greatestOverlap = xOverlap;
+                    else if (yOverlap > xOverlap && greatestOverlap < yOverlap)
+                        greatestOverlap = yOverlap;*/
+
                     leastAxis = a;
                 }
             }
         }
 
-        return Colliding{colliding, leastOverlap, leastAxis};
+        return Colliding{colliding, greatestOverlap, leastOverlap, leastAxis};
     }
 
     static Vector2* getGlobalVertices(const sf::Shape& s)

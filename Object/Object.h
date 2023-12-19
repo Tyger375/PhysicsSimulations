@@ -32,6 +32,11 @@ public:
 
     inline void update() override
     {
+
+    }
+
+    inline void fixedUpdate() override
+    {
         rb.update();
         shape.update();
     }

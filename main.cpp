@@ -16,6 +16,7 @@ Simulations::Simulation* simulation = new ProjectileSimulation();
 #include "Entity/Entity.h"
 
 float GlobalVars::deltaTime = 0.f;
+float GlobalVars::fixedDeltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
 
 int main() {
@@ -35,6 +36,12 @@ int main() {
     sf::Clock updateGraph;
 
     simulation->onCreate();
+
+    //Implementing fixed looping
+    sf::Clock clock;
+    const sf::Time timePerFrame = sf::seconds(1.0 / 60.0);
+    GlobalVars::fixedDeltaTime = 1.0 / 60.0;
+    sf::Time deltaTime = sf::Time::Zero;
     /*
     auto rope = (Rope*)GlobalVars::entities[0];
     auto ropeRb = rope->TryGetBehavior<RopeRigidBody>();
@@ -81,8 +88,6 @@ int main() {
             simulation->onEvent(event);
         }
 
-        window.clear();
-
         if (Utils::everySeconds(&simulation->clock, 3))
         {
             if (!simulation->start)
@@ -100,6 +105,17 @@ int main() {
             }
         }
 
+        deltaTime += clock.restart();
+
+        while (deltaTime >= timePerFrame) {
+            deltaTime -= timePerFrame;
+            if (simulation->start && !simulation->paused) {
+                for (auto entity: GlobalVars::entities) {
+                    entity->fixedUpdate();
+                }
+            }
+        }
+
         //line[1].position = startPos + (sf::Vector2f)rope->distance().normalize() * 100.f;
         /*auto pos = rope->members.end().operator--()->getSprite().getPosition();
         auto r = rope->distance().normalize();
@@ -113,6 +129,8 @@ int main() {
         if (simulation->start && !simulation->paused) {
             simulation->onDrawGraphs();
         }
+
+        window.clear();
 
         //obj
         for (auto entity: GlobalVars::entities) {
