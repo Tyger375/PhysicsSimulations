@@ -27,7 +27,9 @@ void RigidBody::update() {
 
     parent->setPosition((sf::Vector2f) pos);
 
-    /*if (!isOnGround((Vector2)parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj))
+    /*
+     * TODO: Reimplement inclined plane and friction
+    if (!isOnGround((Vector2)parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj))
     {
 
     }

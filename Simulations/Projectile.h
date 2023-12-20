@@ -25,7 +25,7 @@ public:
         player.setPosition(Vector2(50, 500));
         player.rb.addForce(Vector2(100.f, -50.f * 0.f));
 
-        auto ground2Size = Vector2(100, 50);
+        auto ground2Size = Vector2(1000, 50);
         static Object ground(ground2Size, ground2Size, sf::Color::Blue);
         ground.rb.useGravity = false;
         ground.rb.mass = 0;
@@ -38,7 +38,7 @@ public:
 
         static Object box(size + Vector2(50, 0), size + Vector2(50, 0), sf::Color::Magenta);
         box.rb.useGravity = true;
-        box.rb.mass = 25;
+        box.rb.mass = 50;
         box.setPosition(Vector2(50, 570));
 
         auto groundSize = Vector2(50, 300);
@@ -46,8 +46,6 @@ public:
         verticalGround.rb.useGravity = false;
         verticalGround.rb.mass = 0;
         verticalGround.setPosition(Vector2(700, 550));
-
-        std::cout << player.id << " " << box.id << std::endl;
 
         GlobalVars::entities.push_back(&box);
         GlobalVars::entities.push_back(&player);
