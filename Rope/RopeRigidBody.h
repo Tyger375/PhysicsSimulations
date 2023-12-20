@@ -44,18 +44,21 @@ public:
         auto deltaTime = GlobalVars::deltaTime;
         auto r = rope->distance().normalize();
         auto direction = Vector2{-r.y, r.x};
+        //std::cout << direction << std::endl;
         /*if (std::abs(rope->getTension() - 1) < 0.1)
         {
             auto v = direction * velocity.magnitude();
             velocity = v;
         }*/
-        velocity = direction * velocity.magnitude();
+        velocity = direction * 5.f;
 
-        /*auto acceleration = direction * 10.f;
+        auto acceleration = direction * 0.f;
 
+        auto radius = rope->length.magnitude();
         auto vel = oldVelocity.magnitude();
-        auto centripetal = (vel * vel) / rope->length.magnitude();
+        auto centripetal = (vel * vel) / radius;
         auto Ac = r * -1 * centripetal * deltaTime;
+        std::cout << Ac << " " << Ac.magnitude() << std::endl;
         velocity = oldVelocity + (acceleration + Ac) * deltaTime;
         //velocity += Ac;
 
@@ -63,7 +66,7 @@ public:
         line.start = Vector2(150.f, 150.f);
         line.direction = r * -1;
         line.distance = centripetal * 100.f;
-        debugs.push_back(line);*/
+        debugs.push_back(line);
 
         //velocity = direction * velocity.magnitude();
 

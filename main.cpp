@@ -43,10 +43,10 @@ int main() {
     sf::Clock updateGraph;
 
     simulation->onCreate();
-    /*
+
     auto rope = (Rope*)GlobalVars::entities[0];
     auto ropeRb = rope->TryGetBehavior<RopeRigidBody>();
-    */
+
 
     //auto obj = (Object*)GlobalVars::entities[0];
     //auto rb = obj->TryGetBehavior<RigidBody>();
@@ -77,6 +77,7 @@ int main() {
                 if (event.key.code == sf::Keyboard::Space)
                 {
                     GlobalVars::entities.clear();
+                    simulation->clock.restart();
                     simulation->start = false;
                     simulation->onCreate();
                 }
@@ -110,14 +111,16 @@ int main() {
         }
 
         //line[1].position = startPos + (sf::Vector2f)rope->distance().normalize() * 100.f;
-        /*auto pos = rope->members.end().operator--()->getSprite().getPosition();
+        auto pos = (Vector2)rope->members.end().operator--()->getSprite().getPosition();
         auto r = rope->distance().normalize();
         auto direction = Vector2{-r.y, r.x}.normalize();
         struct Debug::Line line;
         line.start = pos;
-        line.direction = ropeRb->velocity.normalize();
+        //auto r = rope->distance().normalize();
+        //auto direction = Vector2{-r.y, r.x};
+        line.direction = direction;
         line.distance = 100.f;
-        Debug::drawLine(&window, line);*/
+        Debug::drawLine(&window, line);
 
         if (simulation->start && !simulation->paused) {
             simulation->onDrawGraphs();

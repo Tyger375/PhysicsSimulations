@@ -39,9 +39,9 @@ public:
 
     }
     void onDrawGraphs() override {
-        auto vel = player.rb.velocity.magnitude();
-        std::cout << player.rb.velocity << " " << vel << std::endl;
-        graphsManager.addPoint(0, time, vel);
+        auto vel = player.rb.velocity;
+        //std::cout << player.rb.velocity << " " << vel << std::endl;
+        graphsManager.addPoint(0, time, vel.y);
     }
 };
 

@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 # VARS
 set(ROOT_BIN_DIR "C:/root_v6.30.02/bin")
 set(ROOT_DIR "C:/root_v6.30.02/cmake")
-set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")`
+set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
 
 # Setting ROOT
 find_package(ROOT REQUIRED COMPONENTS CORE RIO Net Graf Gpad)
