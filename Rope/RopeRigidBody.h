@@ -5,7 +5,7 @@
 #include "../Behaviors/RigidBody/RigidBody.h"
 #include "RopeMember.h"
 
-class RopeRigidBody : public RigidBody
+class RopeRigidBody : public Behavior
 {
 private:
     Rope* rope;
@@ -16,6 +16,8 @@ private:
     //Vector2 acceleration = Vector2(10.f, 10.f);
     std::vector<struct Debug::Line> debugs;
 public:
+    Vector2 velocity{};
+    Vector2 oldVelocity{};
     RopeRigidBody(
             Rope* rope,
             CollisionDetection collisionDetectionType,
@@ -25,17 +27,8 @@ public:
             lastCollision(new CircleShape(
                     last->pointer(),
                     1
-            )), // last collision member
-            RigidBody(
-                    nullptr,
-                    nullptr,
-                    collisionDetectionType,
-                    1,
-                    useGravity
-            )
+            )) // last collision member
     {
-        this->parent = last->pointer();
-        this->collisionShape = lastCollision;
         this->rope = rope;
         this->velocity = Vector2();
     }
@@ -50,29 +43,43 @@ public:
             auto v = direction * velocity.magnitude();
             velocity = v;
         }*/
-        velocity = direction * 5.f;
+        //velocity = direction * 5.f;
 
-        auto acceleration = direction * 0.f;
+        //auto acceleration = (direction * 100.f);
+        auto acceleration = direction * 9.81;
 
         auto radius = rope->length.magnitude();
-        auto vel = oldVelocity.magnitude();
+        auto vel = velocity.magnitude();
         auto centripetal = (vel * vel) / radius;
-        auto Ac = r * -1 * centripetal * deltaTime;
-        std::cout << Ac << " " << Ac.magnitude() << std::endl;
-        velocity = oldVelocity + (acceleration + Ac) * deltaTime;
+        auto Ac = r * -1 * centripetal;
+        //std::cout << Ac << " " << Ac.magnitude() << std::endl;
+        velocity = (acceleration + Ac) * deltaTime;
+        std::cout << velocity.dot(direction) << std::endl;
         //velocity += Ac;
 
+        //struct Debug::Line line;
+        //line.start = Vector2(150.f, 150.f);
+        //line.start = (Vector2)last->getSprite().getPosition();
+        //line.direction = r * -1;
+        //line.direction = velocity.normalize();
         struct Debug::Line line;
-        line.start = Vector2(150.f, 150.f);
-        line.direction = r * -1;
-        line.distance = centripetal * 100.f;
+        line.start = (Vector2)last->getSprite().getPosition();
+        line.direction = Ac.normalize();
+        line.distance = 100.f;
+
+        struct Debug::Line line2;
+        line2.start = (Vector2)last->getSprite().getPosition();
+        line2.direction = acceleration.normalize();
+        line2.distance = 100.f;
+
         debugs.push_back(line);
+        debugs.push_back(line2);
 
         //velocity = direction * velocity.magnitude();
 
-        auto pos = Vector2(parent->getPosition());
+        auto pos = Vector2(last->getSprite().getPosition());
         //s(t) = s0 + v0 * t + 0.5 * a * t^2
-        auto m = 0.5f * velocity * deltaTime;
+        auto m = oldVelocity * deltaTime + 0.5f * velocity * deltaTime;
         //std::cout << m << std::endl;
         //Transforming meters to pixels
         //1 m = 1000 px

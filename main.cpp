@@ -116,10 +116,8 @@ int main() {
         auto direction = Vector2{-r.y, r.x}.normalize();
         struct Debug::Line line;
         line.start = pos;
-        //auto r = rope->distance().normalize();
-        //auto direction = Vector2{-r.y, r.x};
-        line.direction = direction;
-        line.distance = 100.f;
+        line.direction = ropeRb->velocity.normalize();
+        line.distance = ropeRb->velocity.magnitude();
         Debug::drawLine(&window, line);
 
         if (simulation->start && !simulation->paused) {

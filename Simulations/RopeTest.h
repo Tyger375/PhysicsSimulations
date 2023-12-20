@@ -7,7 +7,7 @@ using namespace Simulations;
 
 class RopeTestSimulation : public Simulation {
 private:
-    Rope rope = Rope(Vector2(150, 50), Vector2(290, 50));
+    Rope rope = Rope(Vector2(350, 250), Vector2(490, 250));
     RopeRigidBody ropeRb = RopeRigidBody(&rope, CONTINUOUS, false);
 public:
     void onCreate() override {
@@ -24,8 +24,8 @@ public:
     void onDrawGraphs() override {
         auto vel = ropeRb.velocity.magnitude();
         auto pos = rope.members.end().operator--()->getSprite().getPosition();
-        graphsManager.addPoint(0, time, vel);
-        graphsManager.addPoint(1, time, pos.y);
+        graphsManager.addPoint(0, time, ropeRb.velocity.x);
+        graphsManager.addPoint(1, time, ropeRb.velocity.y);
     }
 };
 
