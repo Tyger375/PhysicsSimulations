@@ -2,6 +2,8 @@
 #define PHYSICSSIMULATIONS_TEST_H
 
 #include "Simulations.h"
+#include "../Vector2/Vector2.h"
+#include "../Object/Object.h"
 
 using namespace Simulations;
 

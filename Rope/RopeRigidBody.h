@@ -4,6 +4,7 @@
 #include "Rope.h"
 #include "RopeMember.h"
 #include "../Behaviors/RigidBody/RigidBody.h"
+#include "../Behaviors/CircleShape/CircleShape.h"
 
 class RopeRigidBody : public Behavior
 {
@@ -18,23 +19,23 @@ private:
 public:
     Vector2 velocity{};
     Vector2 oldVelocity{};
-    RopeRigidBody(
-            Rope* rope,
-            CollisionDetection collisionDetectionType,
-            bool useGravity = true
+    explicit RopeRigidBody(
+            Rope* rope
     ) :
             last(&*rope->members.end().operator--()), // last member
             lastCollision(new CircleShape(
                     last->pointer(),
+                    last,
                     1
-            )) // last collision member
+            )), // last collision member
+            Behavior(rope)
     {
         this->rope = rope;
         this->velocity = Vector2();
     }
     void update() override
     {
-        auto deltaTime = GlobalVars::deltaTime;
+        auto deltaTime = GlobalVars::fixedDeltaTime;
         auto r = rope->distance().normalize();
         auto direction = Vector2{-r.y, r.x};
         //std::cout << direction << std::endl;
@@ -43,17 +44,17 @@ public:
             auto v = direction * velocity.magnitude();
             velocity = v;
         }*/
-        //velocity = direction * 5.f;
+        //velocity = direction * .5f;
 
         //auto acceleration = (direction * 100.f);
-        auto acceleration = direction * 9.81;
+        auto acceleration = direction * 1.f;
 
         auto radius = rope->length.magnitude();
         auto vel = velocity.magnitude();
         auto centripetal = (vel * vel) / radius;
         auto Ac = r * -1 * centripetal;
         //std::cout << Ac << " " << Ac.magnitude() << std::endl;
-        velocity = (acceleration + Ac) * deltaTime;
+        velocity += (acceleration + Ac) * deltaTime;
         std::cout << velocity.dot(direction) << std::endl;
         //velocity += Ac;
 
@@ -63,6 +64,7 @@ public:
         //line.direction = r * -1;
         //line.direction = velocity.normalize();
         struct Debug::Line line;
+        line.color = sf::Color::Yellow;
         line.start = (Vector2)last->getSprite().getPosition();
         line.direction = Ac.normalize();
         line.distance = 100.f;
@@ -72,8 +74,15 @@ public:
         line2.direction = acceleration.normalize();
         line2.distance = 100.f;
 
+        struct Debug::Line line3;
+        line3.start = (Vector2)last->getSprite().getPosition();
+        line3.direction = velocity.normalize();
+        line3.distance = velocity.magnitude() * 100;
+
+        debugs.clear();
         debugs.push_back(line);
         debugs.push_back(line2);
+        debugs.push_back(line3);
 
         //velocity = direction * velocity.magnitude();
 
@@ -99,7 +108,6 @@ public:
             //std::cout << "Test" << std::endl;
             Debug::drawLine(window, member);
         }
-        debugs.clear();
     }
 };
 

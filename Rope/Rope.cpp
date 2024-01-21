@@ -118,9 +118,7 @@ void Rope::render(sf::RenderWindow *window)
 }
 
 void Rope::update() {
-    for (auto behavior : behaviors) {
-        behavior->update();
-    }
+
 }
 
 void Rope::setEnd(Vector2 pos)
@@ -135,4 +133,10 @@ void Rope::setEnd(Vector2 pos)
     }
 
     members.end().operator--()->setPosition(pos);
+}
+
+void Rope::fixedUpdate() {
+    for (auto behavior : behaviors) {
+        behavior->update();
+    }
 }

@@ -1,4 +1,4 @@
-#define SIMULATION 3
+#define SIMULATION 2
 #if SIMULATION == 1
 #include "Simulations/Test.h"
 Simulations::Simulation* simulation = new TestSimulation();
@@ -14,6 +14,7 @@ Simulations::Simulation* simulation = new ProjectileSimulation();
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include "Entity/Entity.h"
+#include "Utils.h"
 
 float GlobalVars::deltaTime = 0.f;
 float GlobalVars::fixedDeltaTime = 0.f;
@@ -21,7 +22,7 @@ std::vector<Entity*> GlobalVars::entities;
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(1500, 750), "Test");
-    window.setFramerateLimit(200);
+    window.setFramerateLimit(60);
 
     sf::Text txtFPS;
     sf::Font font;

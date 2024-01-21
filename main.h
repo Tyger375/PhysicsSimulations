@@ -38,12 +38,13 @@ namespace Debug {
         Vector2 start;
         Vector2 direction;
         float distance{};
+        sf::Color color = sf::Color::Red;
     };
     static void drawLine(sf::RenderWindow* window, struct Line l)
     {
         sf::VertexArray line(sf::LineStrip, 2);
-        line[0].color = sf::Color::Red;
-        line[1].color = sf::Color::Red;
+        line[0].color = l.color;
+        line[1].color = l.color;
 
         line[0].position = (sf::Vector2f)l.start;
         line[1].position = (sf::Vector2f)(l.start + l.direction * l.distance);
