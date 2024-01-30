@@ -1,4 +1,4 @@
-#define SIMULATION 2
+#define SIMULATION 3
 #if SIMULATION == 1
 #include "Simulations/Test.h"
 Simulations::Simulation* simulation = new TestSimulation();
@@ -40,8 +40,8 @@ int main() {
 
     //Implementing fixed looping
     sf::Clock clock;
-    const sf::Time timePerFrame = sf::seconds(1.0 / 60.0);
-    GlobalVars::fixedDeltaTime = 1.0 / 60.0;
+    GlobalVars::fixedDeltaTime = 1.0 / 120.0;
+    const sf::Time timePerFrame = sf::seconds(GlobalVars::fixedDeltaTime);
     sf::Time deltaTime = sf::Time::Zero;
     /*
     auto rope = (Rope*)GlobalVars::entities[0];

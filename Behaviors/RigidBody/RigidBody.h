@@ -36,6 +36,7 @@ protected:
 public:
     float mass;
     Vector2 velocity{};
+    float angularVelocity;
     bool useGravity;
 
     RigidBody(

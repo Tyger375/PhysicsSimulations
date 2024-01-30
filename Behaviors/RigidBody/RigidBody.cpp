@@ -130,6 +130,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             auto rb = this;
             // Calculate relative velocity
             Vector2 rv = rb2->velocity - rb->velocity;
+            std::cout << c.normal << std::endl;
             // Calculate relative velocity in terms of the normal direction
             float velAlongNormal = rv.dot(c.normal);
 
@@ -139,6 +140,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 
             // Calculate restitution
             float e = 0.5f;
+            //float e = 1.f;
 
             float inv_mass1;
             if (rb->mass == 0)

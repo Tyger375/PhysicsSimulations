@@ -125,12 +125,12 @@ void Rope::setEnd(Vector2 pos)
 {
     auto startPos = (Vector2) members.begin()->getSprite().getPosition();
 
-    auto l = pos - startPos;
+    /*auto l = pos - startPos;
     if (l.magnitude() > length.magnitude())
     {
         auto c = l.normalize() * length.magnitude();
         pos = (Vector2)(startPos) + c;
-    }
+    }*/
 
     members.end().operator--()->setPosition(pos);
 }

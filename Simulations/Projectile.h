@@ -30,6 +30,7 @@ public:
         ground.rb.useGravity = false;
         ground.rb.mass = 0;
         ground.setPosition(Vector2(50, 650));
+        ground.setRotation(10);
 
         static Object ground2(ground2Size, ground2Size, sf::Color::Blue);
         ground2.rb.useGravity = false;
@@ -47,7 +48,7 @@ public:
         verticalGround.rb.mass = 0;
         verticalGround.setPosition(Vector2(700, 550));
 
-        GlobalVars::entities.push_back(&box);
+        //GlobalVars::entities.push_back(&box);
         GlobalVars::entities.push_back(&player);
         GlobalVars::entities.push_back(&ground);
         GlobalVars::entities.push_back(&ground2);

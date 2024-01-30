@@ -32,7 +32,7 @@ public:
         auto pos = rope.members.end().operator--()->getSprite().getPosition();
         graphsManager.addPoint(0, time, ropeRb.velocity.x);
         graphsManager.addPoint(1, time, ropeRb.velocity.y);
-        graphsManager.addPoint(2, time, vel);
+        graphsManager.addPoint(2, time, ((Vector2)pos).magnitude());
     }
 };
 
