@@ -14,7 +14,7 @@ private:
     CircleShape* lastCollision{};
     float angle = 0.f;
     float angularVel = 0.f;
-    //Vector2 acceleration = Vector2(10.f, 10.f);
+    //Vectors acceleration = Vectors(10.f, 10.f);
     std::vector<struct Debug::Line> debugs;
 public:
     Vector2 velocity{};
@@ -82,25 +82,25 @@ public:
         //velocity += Ac;
 
         //struct Debug::Line line;
-        //line.start = Vector2(150.f, 150.f);
-        //line.start = (Vector2)last->getSprite().getPosition();
+        //line.start = Vectors(150.f, 150.f);
+        //line.start = (Vectors)last->getSprite().getPosition();
         //line.direction = r * -1;
         //line.direction = velocity.normalize();
         struct Debug::Line line;
         line.color = sf::Color::Yellow;
-        line.start = (Vector2)last->getSprite().getPosition();
+        line.position = (Vector2)last->getSprite().getPosition();
         line.direction = Ac.normalize();
         line.distance = Ac.magnitude() * 100;
 
         struct Debug::Line line2;
         line2.color = sf::Color::Green;
-        line2.start = (Vector2)last->getSprite().getPosition();
+        line2.position = (Vector2)last->getSprite().getPosition();
         line2.direction = r * -1;
         line2.distance = 100;
 
         struct Debug::Line line3;
         line3.color = sf::Color::Blue;
-        line3.start = (Vector2)last->getSprite().getPosition();
+        line3.position = (Vector2)last->getSprite().getPosition();
         line3.direction = velocity.normalize();
         line3.distance = velocity.magnitude() * 1000;
 

@@ -1,5 +1,6 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include "../GraphsManager/GraphsManager.h"
 
 namespace Simulations {
@@ -24,5 +25,6 @@ namespace Simulations {
         virtual void onEvent(sf::Event) {}
         virtual void onUpdate() {}
         virtual void onDrawGraphs() {}
+        virtual void onRender(sf::RenderWindow*) {}
     };
 }

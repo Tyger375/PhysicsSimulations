@@ -17,7 +17,7 @@ public:
         graphsManager.addGraph("Graph");
         graphsManager.addGraph("Graph");
         graphsManager.build();
-        //ropeRb.velocity = Vector2(5.f, 0.f);
+        //ropeRb.velocity = Vectors(5.f, 0.f);
         rope.AddBehavior(&ropeRb);
         GlobalVars::entities.push_back(&rope);
     }

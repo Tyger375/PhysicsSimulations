@@ -16,11 +16,14 @@ Simulations::Simulation* simulation = new ProjectileSimulation();
 #include "Entity/Entity.h"
 #include "Utils.h"
 
-float GlobalVars::deltaTime = 0.f;
-float GlobalVars::fixedDeltaTime = 0.f;
+double GlobalVars::deltaTime = 0.f;
+double GlobalVars::fixedDeltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
 
 int main() {
+    /*auto cp = math::dist(Vectors(0, 3), Vectors(0,0), Vectors(1,1));
+    std::cout << cp.dist << " " << cp.point << std::endl;*/
+
     sf::RenderWindow window(sf::VideoMode(1500, 750), "Test");
     window.setFramerateLimit(60);
 
@@ -40,8 +43,8 @@ int main() {
 
     //Implementing fixed looping
     sf::Clock clock;
-    GlobalVars::fixedDeltaTime = 1.0 / 120.0;
-    const sf::Time timePerFrame = sf::seconds(GlobalVars::fixedDeltaTime);
+    GlobalVars::fixedDeltaTime = 1.0 / 40.0;
+    const sf::Time timePerFrame = sf::seconds((float)GlobalVars::fixedDeltaTime);
     sf::Time deltaTime = sf::Time::Zero;
     /*
     auto rope = (Rope*)GlobalVars::entities[0];
@@ -61,7 +64,7 @@ int main() {
     {
         GlobalVars::deltaTime = simulation->deltaTimeClock.restart().asSeconds();
         simulation->time = (double) simulation->runTimeClock.getElapsedTime().asMilliseconds();
-        float fps = 1.f / (GlobalVars::deltaTime);
+        double fps = 1.0 / GlobalVars::deltaTime;
 
         if (textEnabled)
             txtFPS.setString(std::to_string((int)fps));
@@ -112,6 +115,14 @@ int main() {
             deltaTime -= timePerFrame;
             if (simulation->start && !simulation->paused) {
                 for (auto entity: GlobalVars::entities) {
+                    entity->beforeFixedUpdate();
+                }
+
+                for (auto entity : GlobalVars::entities) {
+                    entity->checkCollisions();
+                }
+
+                for (auto entity : GlobalVars::entities) {
                     entity->fixedUpdate();
                 }
             }
@@ -120,7 +131,7 @@ int main() {
         //line[1].position = startPos + (sf::Vector2f)rope->distance().normalize() * 100.f;
         /*auto pos = rope->members.end().operator--()->getSprite().getPosition();
         auto r = rope->distance().normalize();
-        auto direction = Vector2{-r.y, r.x}.normalize();
+        auto direction = Vectors{-r.y, r.x}.normalize();
         struct Debug::Line line;
         line.start = pos;
         line.direction = ropeRb->velocity.normalize();
@@ -140,6 +151,8 @@ int main() {
 
         if (textEnabled)
             window.draw(txtFPS);
+
+        simulation->onRender(&window);
 
         if (Utils::everySeconds(&updateGraph, 0.1f))
         {

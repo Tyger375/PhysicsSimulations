@@ -9,7 +9,7 @@ bool RectangleShape::collidingWithCircle(CollisionShape& circle)
     //Works with every convex shape
     auto radius = circle.getSize().magnitude();
 
-    float closestDistance = radius * 2;
+    double closestDistance = radius * 2;
     for (int i = 0; i < bounds.getPointCount(); i++)
     {
         auto p = Vector2(bounds.getPoint(i));
@@ -84,7 +84,7 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
         Colliding obj;
         obj.collision = colliding;
 
-        if (c1.overlap.magnitude() < c2.overlap.magnitude())
+        /*if (c1.overlap <= c2.overlap)
         {
             obj.overlap = c1.overlap;
             obj.normal = c1.normal;
@@ -93,12 +93,19 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
         {
             obj.overlap = c2.overlap;
             obj.normal = c2.normal;
-        }
+        }*/
 
-        if (c1.penetration > c2.penetration)
+        obj.overlap = c1.overlap;
+        obj.normal = c1.normal;
+
+        obj.penetration = c1.penetration;
+
+        /*if (c1.penetration > c2.penetration)
             obj.penetration = c1.penetration;
         else
-            obj.penetration = c2.penetration;
+            obj.penetration = c2.penetration;*/
+
+        obj.collidingPoints = findContactPoints(s, m.getBounds());
 
         return obj;
     }

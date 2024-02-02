@@ -26,6 +26,8 @@ public:
 
     void update() override {};
     void fixedUpdate() override {};
+    void beforeFixedUpdate() override {};
+    void checkCollisions() override {};
     void render(sf::RenderWindow*) override {}
 };
 

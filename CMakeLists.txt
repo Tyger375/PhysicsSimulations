@@ -32,7 +32,7 @@ add_executable(
         Rope/RopeRigidBody.h
         Object/Object.h
         Object/Object.cpp
-        Vector2/Vector2.h
+        Vectors/Vector2.h
         Simulations/Simulations.h Entity/Entity.h Behaviors/Behavior.h Rope/RopeMember.h
         GraphsManager/GraphsManager.cpp
         GraphsManager/GraphsManager.h
@@ -41,6 +41,7 @@ add_executable(
         Simulations/Projectile.h
         Utils.h
         Entity/Entity.cpp
+        Vectors/Vector3.h
 )
 
 # target_compile_options(Test PUBLIC -Zc:__cplusplus)

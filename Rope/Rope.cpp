@@ -129,7 +129,7 @@ void Rope::setEnd(Vector2 pos)
     if (l.magnitude() > length.magnitude())
     {
         auto c = l.normalize() * length.magnitude();
-        pos = (Vector2)(startPos) + c;
+        pos = (Vectors)(startPos) + c;
     }*/
 
     members.end().operator--()->setPosition(pos);

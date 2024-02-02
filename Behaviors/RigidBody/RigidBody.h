@@ -30,14 +30,24 @@ protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
     Vector2 oldVelocity{};
+    double oldAngular{};
 
     CollisionDetection cdType;
     const float Fc = 0.1; //Friction coefficient
 public:
-    float mass;
+    double mass{};
+    double inv_mass{};
+
+    double inertia{};
+    double inv_inertia{};
+
+    float restitution = .0;
+
     Vector2 velocity{};
-    float angularVelocity;
+    double angularVelocity = 0.f;
     bool useGravity;
+    std::vector<struct Debug::Line> debugLines;
+    std::vector<struct Debug::Point> debugPoints;
 
     RigidBody(
             sf::Shape* parent,
@@ -49,13 +59,67 @@ public:
             ) : Behavior(entityParent)
     {
         this->parent = parent;
+
         this->collisionShape = bounds;
         this->cdType = collisionDetectionType;
-        this->mass = mass;
+
+        setDensity(10);
+
         this->useGravity = useGravity;
     }
 
+    void setDensity(double newDensity) {
+        //Mass and inverse mass
+        auto shapeType = collisionShape->getType();
+        if (shapeType == ShapeType::CIRCLE) {
+            auto radius = (float)collisionShape->getSize().magnitude();
+            this->mass = newDensity * M_PI * radius * radius;
+        }
+        else {
+            auto size = collisionShape->getSize();
+            auto width = size.x;// * 10.f;
+            auto height = size.y;// * 10.f;
+            this->mass = newDensity * width * height;
+        }
+
+        if (mass == 0.f)
+            this->inv_mass = 0;
+        else
+            this->inv_mass = 1. / mass;
+
+        //Inertia and inverse inertia
+
+        if (shapeType == ShapeType::CIRCLE) {
+            auto radius = (float)collisionShape->getSize().magnitude();
+            inertia = 1.f / 2.f * mass * pow(radius, 2.f);
+        }
+        else if (shapeType == ShapeType::RECTANGLE) {
+            auto size = collisionShape->getSize();
+            auto width = size.x;// * 10.f;
+            auto height = size.y;// * 10.f;
+            //inertia = (1. / 12.) * mass * (length * length + height * height);
+            inertia = (mass / 12.) * (width * width + height * height);
+        }
+
+        if (inertia == 0)
+            inv_inertia = 0;
+        else
+            inv_inertia = 1. / inertia;
+    }
+
     void checkCollisions(Vector2);
+
+    void updateVars() {
+        auto deltaTime = GlobalVars::fixedDeltaTime;
+        if (useGravity)
+        {
+            //Adding gravity
+            this->velocity -= .5f * Vector2(0, PhysicsLaws::GravityAcceleration) * deltaTime;
+        }
+
+        oldVelocity = this->velocity;
+        oldAngular = this->angularVelocity;
+    }
 
     void update() override;
 
@@ -83,6 +147,25 @@ public:
     //Collision detection
     virtual Colliding checkDiscreteCollision(Vector2, CollisionShape&);
     virtual Colliding checkContinuousCollision(Vector2, CollisionShape&);
+
+    void debug(sf::RenderWindow* window) {
+        for (auto member : debugPoints)
+        {
+            //std::cout << "Test" << std::endl;
+            Debug::drawPoint(window, member);
+        }
+        for (auto member : debugLines)
+        {
+            Debug::drawLine(window, member);
+        }
+
+        if (!debugLines.empty())
+        {
+            std::cout << "";
+        }
+        debugLines.clear();
+        debugPoints.clear();
+    }
 };
 
 

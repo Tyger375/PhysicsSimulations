@@ -2,7 +2,6 @@
 #define PHYSICSSIMULATIONS_PROJECTILE_H
 
 #include "Simulations.h"
-#include "Vector2/Vector2.h"
 #include "Object/Object.h"
 #include "../Utils.h"
 
@@ -12,6 +11,11 @@ class ProjectileSimulation : public Simulation {
 private:
     Vector2 size = Vector2(50, 50);
     Object player = Object(size, size);
+
+    Object box = Object(size + Vector2(50, 0), size + Vector2(50, 0), sf::Color::Magenta);
+
+    Vector2 ground2Size = Vector2(300, 50);
+    Object ground = Object(ground2Size, ground2Size, sf::Color::Blue);
 public:
     void onCreate() override {
         //Graphs
@@ -21,38 +25,39 @@ public:
         graphsManager.build();
 
         player.rb.useGravity = true;
-        player.rb.mass = 10.f;
-        player.setPosition(Vector2(50, 500));
-        player.rb.addForce(Vector2(100.f, -50.f * 0.f));
+        player.rb.setDensity(10);
+        player.setPosition(Vector2(100, 500));
+        std::cout << player.id << std::endl;
+        //player.setRotation(10);
+        //player.rb.addForce(Vectors(100.f, -50.f * 0.f));
 
-        auto ground2Size = Vector2(1000, 50);
-        static Object ground(ground2Size, ground2Size, sf::Color::Blue);
         ground.rb.useGravity = false;
-        ground.rb.mass = 0;
-        ground.setPosition(Vector2(50, 650));
-        ground.setRotation(10);
+        ground.rb.setDensity(0);
+        ground.setPosition(Vector2(160, 650));
+        //ground.setRotation(10);
+
+        box.rb.useGravity = true;
+        box.rb.setDensity(50);
+        box.setPosition(Vector2(50, 570));
 
         static Object ground2(ground2Size, ground2Size, sf::Color::Blue);
         ground2.rb.useGravity = false;
-        ground2.rb.mass = 0;
+        ground2.rb.setDensity(0);
         ground2.setPosition(Vector2(250, 350));
-
-        static Object box(size + Vector2(50, 0), size + Vector2(50, 0), sf::Color::Magenta);
-        box.rb.useGravity = true;
-        box.rb.mass = 50;
-        box.setPosition(Vector2(50, 570));
 
         auto groundSize = Vector2(50, 300);
         static Object verticalGround(groundSize, groundSize, sf::Color::Green);
         verticalGround.rb.useGravity = false;
-        verticalGround.rb.mass = 0;
+        verticalGround.rb.setDensity(0);
         verticalGround.setPosition(Vector2(700, 550));
 
-        //GlobalVars::entities.push_back(&box);
+        GlobalVars::entities.push_back(&box);
         GlobalVars::entities.push_back(&player);
         GlobalVars::entities.push_back(&ground);
-        GlobalVars::entities.push_back(&ground2);
-        GlobalVars::entities.push_back(&verticalGround);
+        //GlobalVars::entities.push_back(&ground2);
+        //GlobalVars::entities.push_back(&verticalGround);
+
+        std::cout << ground.rb.inv_mass << std::endl;
     }
     void onEvent(sf::Event e) override {
         if (Utils::keyPressed(e, sf::Keyboard::N)) {
@@ -62,15 +67,42 @@ public:
     void onUpdate() override {
 
     }
+    void onRender(sf::RenderWindow* window) override {
+        player.rb.debug(window);
+
+        auto velocity = Vector2(10, 5) * 10;
+
+        struct Debug::Point point;
+        point.position = Vector2(50, 50);
+
+        struct Debug::Point end;
+        end.position = point.position + velocity;
+
+        struct Debug::Point materialPoint;
+        auto dir = velocity.normalize();
+        materialPoint.position = point.position - Vector2{dir.x * 10, dir.y * 20};
+        materialPoint.color = sf::Color::Yellow;
+
+        struct Debug::Point materialPointEnd;
+        materialPointEnd.position = end.position + Vector2{dir.x * 10, dir.y * 20};
+        materialPointEnd.color = sf::Color::Yellow;
+
+        Debug::drawPoint(window, point);
+        Debug::drawPoint(window, end);
+        Debug::drawPoint(window, materialPoint);
+        Debug::drawPoint(window, materialPointEnd);
+        //ground.rb.debug(window);
+    }
     void onDrawGraphs() override {
-        auto pos = player.getSprite().getPosition();
+        //auto pos = ;
         //auto vel = player.rb.velocity;
-        auto vec = pos;
+        //auto vec = pos;
         //graphsManager.addPoint(0, time, vec.x);
         //graphsManager.addPoint(0, time, vel.y);
-        graphsManager.addPoint(1, time, vec.y);
-        float fps = 1.f / (GlobalVars::deltaTime);
-        graphsManager.addPoint(0, time, fps);
+        graphsManager.addPoint(1, time, player.rb.velocity.magnitude());
+        graphsManager.addPoint(0, time, player.rb.angularVelocity);
+        //float fps = 1.f / (GlobalVars::deltaTime);
+        //graphsManager.addPoint(0, time, fps);
     }
 };
 

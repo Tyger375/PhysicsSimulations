@@ -2,6 +2,9 @@
 
 void Object::render(sf::RenderWindow *window) {
     window->draw(getSprite());
+    auto bounds = *(sf::RectangleShape*)getBounds()->getBounds();
+    bounds.setFillColor(sf::Color::Yellow);
+    window->draw(bounds);
 }
 
 Object::Object(Vector2 size, Vector2 collisionSize, sf::Color color) :

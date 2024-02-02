@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include "../Behaviors/RigidBody/RigidBody.h"
 #include "../Behaviors/CollisionShape/CollisionShape.h"
-#include "../Vector2/Vector2.h"
 #include "../Behaviors/RectangleShape/RectangleShape.h"
 #include "../Entity/Entity.h"
 
@@ -33,6 +32,14 @@ public:
     inline void update() override
     {
 
+    }
+
+    inline void beforeFixedUpdate() override {
+        rb.updateVars();
+    }
+
+    inline void checkCollisions() override {
+        rb.checkCollisions((Vector2)this->obj.getPosition());
     }
 
     inline void fixedUpdate() override

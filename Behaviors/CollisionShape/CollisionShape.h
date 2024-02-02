@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "../../Vector2/Vector2.h"
 #include "../Behavior.h"
 
 enum ShapeType
@@ -11,11 +10,18 @@ enum ShapeType
     CIRCLE, RECTANGLE
 };
 
+struct CollidingPoints {
+    Vector2 pointA;
+    Vector2 pointB;
+    int contactCount{};
+};
+
 struct Colliding {
     bool collision = false;
-    float penetration{};
-    Vector2 overlap;
+    double penetration{};
+    double overlap{};
     Vector2 normal;
+    CollidingPoints collidingPoints;
 };
 
 class CollisionShape : public Behavior {
@@ -26,9 +32,9 @@ protected:
 
     static Colliding getCollision(Vector2* axes, unsigned int length, const sf::Shape& first, const sf::Shape& second)
     {
-        Vector2 leastOverlap = Vector2(1000000.f, 10000000.f);
+        double leastOverlap = INT16_MAX;
         Vector2 leastAxis;
-        float greatestOverlap = 0.f;
+        double greatestOverlap = 0.f;
         bool colliding = true;
         for (int i = 0; i < length; i++)
         {
@@ -43,21 +49,32 @@ protected:
                 break;
             }
             else {
-                float minOverlap = std::max(p1.x, p2.x);
-                float maxOverlap = std::min(p1.y, p2.y);
+                double minOverlap = std::max(p1.x, p2.x);
+                double maxOverlap = std::min(p1.y, p2.y);
                 auto newOverlap = Vector2(minOverlap, maxOverlap);
-                if (abs(leastOverlap.x - leastOverlap.y) > abs(newOverlap.x - newOverlap.y)) {
-                    leastOverlap = newOverlap;
+                auto lO = leastOverlap;
+                auto nO = abs(newOverlap.x - newOverlap.y);
+                /*if (abs(lO - nO) < 0.0001) {
                     auto a = axis;
                     if (p1.y > p2.y)
                         a.y *= -1;
                     if (p1.x > p2.x)
                         a.x *= -1;
 
-                    /*if (minOverlap > greatestOverlap && greatestOverlap < xOverlap)
-                        greatestOverlap = xOverlap;
-                    else if (yOverlap > xOverlap && greatestOverlap < yOverlap)
-                        greatestOverlap = yOverlap;*/
+                    leastAxis += a;
+                    leastAxis = leastAxis.normalize();
+                }
+                else */if (nO < lO) {
+                    //leastOverlap = newOverlap;
+                    leastOverlap = nO;
+                    auto a = axis;
+                    if (p1.y > p2.y)
+                        a.y *= -1;
+                    if (p1.x > p2.x)
+                        a.x *= -1;
+
+                    if (greatestOverlap < nO)
+                        greatestOverlap = nO;
 
                     leastAxis = a;
                 }
@@ -98,7 +115,7 @@ protected:
 
             Vector2 edge = v1 - v2;
 
-            Vector2 normal = {-edge.y, edge.x};
+            Vector2 normal = edge.orthogonal();
 
             //Normalizing to get accurate projections
             axes[i] = normal.normalize();
@@ -108,10 +125,10 @@ protected:
 
     static Vector2 getProjection(Vector2 axis, Vector2* vertices, unsigned int length)
     {
-        float min = axis.dot(vertices[0]);
-        float max = min;
+        double min = axis.dot(vertices[0]);
+        double max = min;
         for (int i = 1; i < length; i++) {
-            float p = axis.dot(vertices[i]);
+            double p = axis.dot(vertices[i]);
             if (p < min) {
                 min = p;
             } else if (p > max) {
@@ -123,6 +140,88 @@ protected:
     }
 
     #pragma endregion
+
+    static void findMinDistance(
+            size_t verticesA,
+            size_t verticesB,
+            sf::Shape* boundsA,
+            sf::Shape* boundsB,
+            Vector2* contact1,
+            Vector2* contact2,
+            float* minDistSq,
+            int* contactCount
+    )
+    {
+        auto globalA = getGlobalVertices(*boundsA);
+        auto globalB = getGlobalVertices(*boundsB);
+
+        for (int i = 0; i < verticesA; i++) {
+            auto vertexA = globalA[i];
+
+            for (int j = 0; j < verticesB; j++) {
+                auto bStart = globalB[j];
+                auto bEnd = globalB[(j + 1) % verticesB];
+
+                auto cp = math::dist(vertexA, bStart, bEnd);
+
+                if (!cp.contains)
+                    continue;
+
+                if (abs(cp.dist - *minDistSq) < 0.0001)
+                {
+                    if (cp.point == *contact1) continue;
+
+                    *contact2 = cp.point;
+                    *contactCount = 2;
+                }
+                else if (cp.dist < *minDistSq)
+                {
+                    *minDistSq = cp.dist;
+                    *contactCount = 1;
+                    *contact1 = cp.point;
+                }
+            }
+        }
+    }
+
+    static CollidingPoints findContactPoints(
+            sf::Shape* boundsA,
+            sf::Shape* boundsB
+    )
+    {
+        auto contact1 = Vector2();
+        auto contact2 = Vector2();
+        auto contactCount = 0;
+
+        auto verticesA = boundsA->getPointCount();
+        auto verticesB = boundsB->getPointCount();
+
+        float minDistSq = INT8_MAX;
+
+        findMinDistance(
+                verticesA,
+                verticesB,
+                boundsA,
+                boundsB,
+                &contact1,
+                &contact2,
+                &minDistSq,
+                &contactCount
+        );
+
+        findMinDistance(
+                verticesB,
+                verticesA,
+                boundsB,
+                boundsA,
+                &contact1,
+                &contact2,
+                &minDistSq,
+                &contactCount
+        );
+
+        return CollidingPoints{contact1, contact2, contactCount};
+    }
 public:
     CollisionShape(sf::Shape* obj, Entity* parent) :
             Behavior(parent)
