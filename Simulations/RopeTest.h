@@ -2,16 +2,22 @@
 #define PHYSICSSIMULATIONS_ROPETEST_H
 
 #include "Simulations.h"
+#include "../Rope/Rope.h"
+#include "../Rope/RopeRigidBody.h"
 
 using namespace Simulations;
 
 class RopeTestSimulation : public Simulation {
 private:
-    Rope rope = Rope(Vector2(350, 250), Vector2(490, 250));
-    RopeRigidBody ropeRb = RopeRigidBody(&rope, CONTINUOUS, false);
+    Rope rope = Rope(Vector2(450, 350), Vector2(590, 350));
+    RopeRigidBody ropeRb = RopeRigidBody(&rope);
 public:
     void onCreate() override {
-        ropeRb.velocity = Vector2(5.f, 0.f);
+        graphsManager.addGraph("Graph");
+        graphsManager.addGraph("Graph");
+        graphsManager.addGraph("Graph");
+        graphsManager.build();
+        //ropeRb.velocity = Vectors(5.f, 0.f);
         rope.AddBehavior(&ropeRb);
         GlobalVars::entities.push_back(&rope);
     }
@@ -26,6 +32,7 @@ public:
         auto pos = rope.members.end().operator--()->getSprite().getPosition();
         graphsManager.addPoint(0, time, ropeRb.velocity.x);
         graphsManager.addPoint(1, time, ropeRb.velocity.y);
+        graphsManager.addPoint(2, time, ((Vector2)pos).magnitude());
     }
 };
 

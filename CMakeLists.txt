@@ -37,12 +37,16 @@ add_library(
         Rope/RopeRigidBody.h
         Object/Object.h
         Object/Object.cpp
-        Vector2/Vector2.h
-        Simulations/Simulations.h Entity.h Behaviors/Behavior.h Rope/RopeMember.h
+        Vectors/Vector2.h
+        Simulations/Simulations.h Entity/Entity.h Behaviors/Behavior.h Rope/RopeMember.h
         GraphsManager/GraphsManager.cpp
         GraphsManager/GraphsManager.h
         Simulations/Test.h
         Simulations/RopeTest.h
+        Simulations/Projectile.h
+        Utils.h
+        Entity/Entity.cpp
+        Vectors/Vector3.h
 )
 
 target_link_libraries(Main

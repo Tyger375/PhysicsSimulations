@@ -10,13 +10,13 @@ private:
 
     bool collidingWithCircle(CollisionShape& circle);
 public:
-    RectangleShape(sf::Shape *obj, Vector2 size) : CollisionShape(obj) {
+    RectangleShape(sf::Shape *obj, Entity* parent, Vector2 size) : CollisionShape(obj, parent) {
         bounds.setSize((sf::Vector2f) size);
         bounds.setOrigin(sf::Vector2f(size.x/2, size.y/2));
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 
-    sf::RectangleShape * getBounds() override
+    sf::RectangleShape* getBounds() override
     {
         return &bounds;
     }
@@ -24,7 +24,7 @@ public:
     ShapeType getType() override { return RECTANGLE; }
 
     bool aabbCollision(CollisionShape& m) override;
-    bool satCollision(CollisionShape& m) override;
+    Colliding satCollision(CollisionShape& m) override;
     void update() override;
 
     inline Vector2 getSize() override { return (Vector2)bounds.getSize(); }

@@ -118,21 +118,25 @@ void Rope::render(sf::RenderWindow *window)
 }
 
 void Rope::update() {
-    for (auto behavior : behaviors) {
-        behavior->update();
-    }
+
 }
 
 void Rope::setEnd(Vector2 pos)
 {
     auto startPos = (Vector2) members.begin()->getSprite().getPosition();
 
-    auto l = pos - startPos;
+    /*auto l = pos - startPos;
     if (l.magnitude() > length.magnitude())
     {
         auto c = l.normalize() * length.magnitude();
-        pos = (Vector2)(startPos) + c;
-    }
+        pos = (Vectors)(startPos) + c;
+    }*/
 
     members.end().operator--()->setPosition(pos);
+}
+
+void Rope::fixedUpdate() {
+    for (auto behavior : behaviors) {
+        behavior->update();
+    }
 }

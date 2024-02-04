@@ -9,7 +9,7 @@ bool RectangleShape::collidingWithCircle(CollisionShape& circle)
     //Works with every convex shape
     auto radius = circle.getSize().magnitude();
 
-    float closestDistance = radius * 2;
+    double closestDistance = radius * 2;
     for (int i = 0; i < bounds.getPointCount(); i++)
     {
         auto p = Vector2(bounds.getPoint(i));
@@ -57,12 +57,13 @@ bool RectangleShape::aabbCollision(CollisionShape& m)
     return false;
 }
 
-bool RectangleShape::satCollision(CollisionShape& m)
+Colliding RectangleShape::satCollision(CollisionShape& m)
 {
     auto type = m.getType();
 
     if (type == CIRCLE)
-        return collidingWithCircle(m);
+        //return collidingWithCircle(m);
+        return Colliding{};
     else if (type == RECTANGLE)
     {
         auto *s = &this->bounds;
@@ -75,16 +76,41 @@ bool RectangleShape::satCollision(CollisionShape& m)
         const unsigned int length2 = m.getBounds()->getPointCount();
         Vector2 *axes2 = getAxes(*m.getBounds());
 
+        auto c1 = getCollision(axes, length, this->bounds, *m.getBounds());
+        auto c2 = getCollision(axes2, length2, this->bounds, *m.getBounds());
 
-        auto colliding =
-                getCollision(axes, length, this->bounds, *m.getBounds())
-                &&
-                getCollision(axes2, length2, this->bounds, *m.getBounds());
+        auto colliding = c1.collision && c2.collision;
 
-        return colliding;
+        Colliding obj;
+        obj.collision = colliding;
+
+        /*if (c1.overlap <= c2.overlap)
+        {
+            obj.overlap = c1.overlap;
+            obj.normal = c1.normal;
+        }
+        else
+        {
+            obj.overlap = c2.overlap;
+            obj.normal = c2.normal;
+        }*/
+
+        obj.overlap = c1.overlap;
+        obj.normal = c1.normal;
+
+        obj.penetration = c1.penetration;
+
+        /*if (c1.penetration > c2.penetration)
+            obj.penetration = c1.penetration;
+        else
+            obj.penetration = c2.penetration;*/
+
+        obj.collidingPoints = findContactPoints(s, m.getBounds());
+
+        return obj;
     }
 
-    return false;
+    return Colliding{false};
 }
 
 void RectangleShape::update()
