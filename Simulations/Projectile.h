@@ -21,7 +21,6 @@ public:
         //Graphs
         graphsManager.addGraph("Graph");
         graphsManager.addGraph("Graph");
-        //graphsManager.addGraph("Graph");
         graphsManager.build();
 
         player.rb.useGravity = true;
@@ -68,41 +67,11 @@ public:
 
     }
     void onRender(sf::RenderWindow* window) override {
-        player.rb.debug(window);
-
-        auto velocity = Vector2(10, 5) * 10;
-
-        struct Debug::Point point;
-        point.position = Vector2(50, 50);
-
-        struct Debug::Point end;
-        end.position = point.position + velocity;
-
-        struct Debug::Point materialPoint;
-        auto dir = velocity.normalize();
-        materialPoint.position = point.position - Vector2{dir.x * 10, dir.y * 20};
-        materialPoint.color = sf::Color::Yellow;
-
-        struct Debug::Point materialPointEnd;
-        materialPointEnd.position = end.position + Vector2{dir.x * 10, dir.y * 20};
-        materialPointEnd.color = sf::Color::Yellow;
-
-        Debug::drawPoint(window, point);
-        Debug::drawPoint(window, end);
-        Debug::drawPoint(window, materialPoint);
-        Debug::drawPoint(window, materialPointEnd);
-        //ground.rb.debug(window);
+        //player.rb.debug(window);
     }
     void onDrawGraphs() override {
-        //auto pos = ;
-        //auto vel = player.rb.velocity;
-        //auto vec = pos;
-        //graphsManager.addPoint(0, time, vec.x);
-        //graphsManager.addPoint(0, time, vel.y);
         graphsManager.addPoint(1, time, player.rb.velocity.magnitude());
         graphsManager.addPoint(0, time, player.rb.angularVelocity);
-        //float fps = 1.f / (GlobalVars::deltaTime);
-        //graphsManager.addPoint(0, time, fps);
     }
 };
 

@@ -47,7 +47,7 @@ namespace math
     static void getLine(Vector2 p1, Vector2 p2, double &a, double &b, double &c)
     {
         // (x- p1X) / (p2X - p1X) = (y - p1Y) / (p2Y - p1Y)
-        a = p1.y - p2.y; // Note: this was incorrectly "y2 - y1" in the original answer
+        a = p1.y - p2.y;
         b = p2.x - p1.x;
         c = p1.x * p2.y - p2.x * p1.y;
     }
@@ -80,7 +80,7 @@ namespace math
         auto s = Vector2{dir.x * width / 2.f, dir.y * height / 2.f};
 
         auto start = position - s;
-        auto end = position + velocity + Vector2{dir.x * 10, dir.y * 20};
+        auto end = position + velocity + s;
 
         return {start, end};
     }

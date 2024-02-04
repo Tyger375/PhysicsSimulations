@@ -2,12 +2,6 @@
 
 void RigidBody::update() {
     auto deltaTime = GlobalVars::fixedDeltaTime;
-    //auto deltaTime = 1 / 40.f;
-
-    //checkCollisions((Vector2)parent->getPosition());
-
-    /*if (velocity == Vector2() || !useGravity)
-        return;*/
 
     auto pos = Vector2(parent->getPosition());
     //s(t) = s0 + v0 * t + 0.5 * a * t^2
@@ -21,25 +15,8 @@ void RigidBody::update() {
 
     auto rot = math::degToRad(parent->getRotation());
 
-    auto r = this->angularVelocity;// * deltaTime;
-    //r *= 100.f;
+    auto r = this->angularVelocity;
     rot += r;
-
-    /*if (isPlayer) {
-        std::cout << rot << std::endl;
-        std::cout << this->angularVelocity << " " << this->angularVelocity * deltaTime << std::endl;
-    }*/
-
-    /*for (auto & entity : GlobalVars::entities) {
-        auto *rb2 = entity->TryGetBehavior<RigidBody>();
-        if (rb2 != nullptr && rb2 == this)
-            continue;
-        if (rb2 == nullptr)
-            continue;
-        auto *s = entity->TryGetBehavior<CollisionShape>();
-        if (s == nullptr)
-            continue;
-    }*/
 
     parent->setPosition((sf::Vector2f) pos);
     parent->setRotation((float)math::radToDeg(rot));
@@ -125,8 +102,6 @@ void RigidBody::update() {
 }
 
 void RigidBody::checkCollisions(Vector2 newPosition) {
-    /*if (!this->useGravity)
-        return;*/
     for (auto & entity : GlobalVars::entities)
     {
         auto* rb2 = entity->TryGetBehavior<RigidBody>();
@@ -155,7 +130,6 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         auto rb = this;
 
         // Calculate restitution
-        //float e = 0.5f;
         float e = std::min(rb->restitution, rb2->restitution);
 
         Vector2 contacts[] = {c.collidingPoints.pointA, c.collidingPoints.pointB};
@@ -178,11 +152,6 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         auto inv_inertia1 = rb->inv_inertia;
         auto inv_inertia2 = rb2->inv_inertia;
 
-        auto isPlayer = rb->entity->id == 2;
-
-        auto oldVel = rb->velocity;
-        auto oldVel2 = rb2->velocity;
-
         for (int i = 0; i < contactCount; i++) {
             auto contact = contacts[i];
             auto dA = contact - thisPos;
@@ -198,14 +167,9 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
 
             // Calculate relative velocity
-            Vector2 rv = (oldVel2 + angularLinearVelocityB) - (oldVel + angularLinearVelocityA);
+            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
             // Calculate relative velocity in terms of the normal direction
             double velAlongNormal = rv.dot(normal);
-
-            /*if (isPlayer) {
-                std::cout << "v: " << rb2->velocity << angularLinearVelocityB << rb->velocity << angularLinearVelocityA << std::endl;
-                std::cout << rv << " " << velAlongNormal << " " << c.normal << std::endl;
-            }*/
 
             // Do not resolve if velocities are separating
             if(velAlongNormal > 0)
@@ -242,12 +206,6 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 
         const double slop = 0.01; // usually 0.01 to 0.1
 
-        //std::cout << c.penetration << std::endl;
-        /*if (rb->collisionShape->entity->id == 1)
-            std::cout << rb->angularVelocity << std::endl;*/
-
-        std::cout << c.penetration << std::endl;
-
         Vector2 correction = std::max(c.penetration - slop, 0. ) / (inv_mass1 + inv_mass2) * percent * c.normal;
 
         rb->parent->setPosition(rb->parent->getPosition() - (sf::Vector2f)(inv_mass1 * correction));
@@ -255,20 +213,12 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 
 
         //Fixing velocities so objects don't look buggy
-        /*if (std::abs(this->velocity.y) < 0.2)
-            this->velocity.y = 0.f;*/
-        /*if (rb->velocity.y < 0.2)
-            rb->velocity.y = 0.f;
-        if (rb2->velocity.y < 0.2)
-            rb2->velocity.y = 0.f;*/
-        //if (abs(rb->velocity.magnitude()) < 0.4)
         if ((rb->velocity.magnitude()) < 0.1)
         {
             rb->velocity.x *= abs(c.normal.y);
             rb->velocity.y *= abs(c.normal.x);
         }
 
-        //if (abs(rb2->velocity.magnitude()) < 0.4)
         if ((rb2->velocity.magnitude()) < 0.1)
         {
             rb2->velocity.x *= abs(c.normal.y);
@@ -285,11 +235,6 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             rb2->angularVelocity = 0;
         }
 
-        if (isPlayer)
-            std::cout << "delta: " << oldVel << " " << (impulses[0] + impulses[1]) * inv_mass1 << " " << rb->velocity << " " << rb->angularVelocity << std::endl;
-        else
-            std::cout << "delta2: " << oldVel2 << " " << (impulses[0] + impulses[1]) * inv_mass2 << " " << rb2->velocity << " " << rb2->angularVelocity << std::endl;
-
         delete[] impulses;
         delete[] directionsA;
         delete[] directionsB;
@@ -301,7 +246,6 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, CollisionShape& m) {
     auto otherPos = (Vector2)m.getBounds()->getPosition();
     auto deltaTime = GlobalVars::fixedDeltaTime;
-    //auto finalPos = startPos + (oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime) * 1000.f);
     auto finalPos = startPos + (this->velocity * deltaTime * 1000.0);
 
     auto size = m.getSize();
@@ -316,9 +260,7 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
         (first.y > otherPos.y && second.y < otherPos.y))
         return Colliding{false};
 
-    //std::cout << entity->id << " " << m.entity->id << " yes" << std::endl;
-
-    const float precision = 0.005f;
+    const float precision = 0.01f;
     const int max = (int)(1 / precision);
 
     auto direction = finalPos - startPos;
@@ -330,7 +272,6 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
     for (int i = 0; i <= max; i++) {
         float j = (float)i / (float)max;
 
-        //auto pos = startPos + (distance * j * deltaTime * 1000.f);
         auto pos = startPos + j * direction;
 
         colliding = checkDiscreteCollision(pos, m);
@@ -341,8 +282,6 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
         }
         pPos = pos;
     }
-
-    //  std::cout << entity->id << " " << colliding.collision << std::endl;
 
     return colliding;
 }

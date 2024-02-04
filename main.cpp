@@ -21,9 +21,6 @@ double GlobalVars::fixedDeltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
 
 int main() {
-    /*auto cp = math::dist(Vectors(0, 3), Vectors(0,0), Vectors(1,1));
-    std::cout << cp.dist << " " << cp.point << std::endl;*/
-
     sf::RenderWindow window(sf::VideoMode(1500, 750), "Test");
     window.setFramerateLimit(60);
 
@@ -41,24 +38,11 @@ int main() {
 
     simulation->onCreate();
 
-    //Implementing fixed looping
+    // Implementing fixed looping
     sf::Clock clock;
     GlobalVars::fixedDeltaTime = 1.0 / 40.0;
     const sf::Time timePerFrame = sf::seconds((float)GlobalVars::fixedDeltaTime);
     sf::Time deltaTime = sf::Time::Zero;
-    /*
-    auto rope = (Rope*)GlobalVars::entities[0];
-    auto ropeRb = rope->TryGetBehavior<RopeRigidBody>();
-    */
-
-    //auto obj = (Object*)GlobalVars::entities[0];
-    //auto rb = obj->TryGetBehavior<RigidBody>();
-    /*sf::VertexArray line(sf::LinesStrip, 2);
-    auto fPos = pos + ropeRb->velocity;
-    auto startPos = sf::Vector2f(150, 150);
-    line[0].position = startPos;
-    line[0].color = sf::Color::Red;
-    line[1].color = sf::Color::Red;*/
 
     while (window.isOpen())
     {
@@ -128,23 +112,13 @@ int main() {
             }
         }
 
-        //line[1].position = startPos + (sf::Vector2f)rope->distance().normalize() * 100.f;
-        /*auto pos = rope->members.end().operator--()->getSprite().getPosition();
-        auto r = rope->distance().normalize();
-        auto direction = Vectors{-r.y, r.x}.normalize();
-        struct Debug::Line line;
-        line.start = pos;
-        line.direction = ropeRb->velocity.normalize();
-        line.distance = 100.f;
-        Debug::drawLine(&window, line);*/
-
         if (simulation->start && !simulation->paused) {
             simulation->onDrawGraphs();
         }
 
         window.clear();
 
-        //obj
+        // rendering entities
         for (auto entity: GlobalVars::entities) {
             entity->render(&window);
         }

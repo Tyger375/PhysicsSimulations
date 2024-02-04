@@ -29,8 +29,6 @@ class RigidBody : public Behavior {
 protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
-    Vector2 oldVelocity{};
-    double oldAngular{};
 
     CollisionDetection cdType;
     const float Fc = 0.1; //Friction coefficient
@@ -116,9 +114,6 @@ public:
             //Adding gravity
             this->velocity -= .5f * Vector2(0, PhysicsLaws::GravityAcceleration) * deltaTime;
         }
-
-        oldVelocity = this->velocity;
-        oldAngular = this->angularVelocity;
     }
 
     void update() override;
