@@ -1,0 +1,1 @@
+Colliding checkContinuousWrapper(Vector2 startPos, Vector2 direction, sf::Shape* s1, sf::Shape* s2);

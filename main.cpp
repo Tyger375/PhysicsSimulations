@@ -1,4 +1,3 @@
-#define SIMULATION 3
 #if SIMULATION == 1
 #include "Simulations/Test.h"
 Simulations::Simulation* simulation = new TestSimulation();
@@ -58,21 +57,18 @@ int main() {
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::KeyPressed)
+
+            if (Utils::keyPressed(event, sf::Keyboard::Space))
             {
-                if (event.key.code == sf::Keyboard::Space)
-                {
-                    GlobalVars::entities.clear();
-                    simulation->start = false;
-                    simulation->onCreate();
-                }
-                if (event.key.code == sf::Keyboard::P)
-                {
-                    simulation->paused = !simulation->paused;
-                }
-                if (event.key.code == sf::Keyboard::Escape)
-                    window.close();
+                GlobalVars::entities.clear();
+                simulation->start = false;
+                simulation->onCreate();
             }
+            if (Utils::keyPressed(event, sf::Keyboard::P))
+                simulation->paused = !simulation->paused;
+            if (Utils::keyPressed(event, sf::Keyboard::Escape))
+                window.close();
+
             simulation->onEvent(event);
         }
 

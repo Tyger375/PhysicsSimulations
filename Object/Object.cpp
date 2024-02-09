@@ -6,7 +6,7 @@ void Object::render(sf::RenderWindow *window) {
 
 Object::Object(Vector2 size, Vector2 collisionSize, sf::Color color) :
         shape(&obj, this, collisionSize),
-        rb(&obj, this, &shape, CONTINUOUS, 1) {
+        rb(&obj, this, &shape, CONTINUOUS) {
     AddBehavior(&rb);
     AddBehavior(&shape);
     obj.setSize((sf::Vector2f) size);

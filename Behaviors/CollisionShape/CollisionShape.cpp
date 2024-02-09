@@ -1,4 +1,5 @@
 #include "CollisionShape.h"
+#include "Detection.cuh"
 
 Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const sf::Shape& first, const sf::Shape& second)
 {
@@ -7,6 +8,11 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
     double greatestOverlap = 0.f;
     bool colliding = true;
     std::vector<Vector2> list;
+
+    auto vertices1 = getGlobalVertices(first);
+    auto vertices2 = getGlobalVertices(second);
+
+    //auto detail = getCollisionAxisWrapper(axes, length, vertices1, first.getPointCount(), vertices2, second.getPointCount());
     for (int i = 0; i < length; i++)
     {
         auto axis = axes[i];
@@ -18,8 +24,8 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
             continue;
         list.push_back(axis);
 
-        Vector2 p1 = getProjection(axis, getGlobalVertices(first), first.getPointCount());
-        Vector2 p2 = getProjection(axis, getGlobalVertices(second), second.getPointCount());
+        Vector2 p1 = getProjection(axis, vertices1, first.getPointCount());
+        Vector2 p2 = getProjection(axis, vertices2, second.getPointCount());
 
         bool overlap = p1.x < p2.y && p2.x < p1.y;
         if (!overlap) {
@@ -60,7 +66,11 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
         }
     }
 
+    delete[] vertices1;
+    delete[] vertices2;
+
     return Colliding{colliding, greatestOverlap, leastOverlap, leastAxis};
+    //return Colliding{detail.collision, detail.greatestOverlap, detail.leastOverlap, detail.leastAxis};
 }
 
 Vector2* CollisionShape::getGlobalVertices(const sf::Shape& s)
@@ -71,7 +81,6 @@ Vector2* CollisionShape::getGlobalVertices(const sf::Shape& s)
     for (int i = 0; i < length; i++)
     {
         auto vertex = s.getPoint(i);
-
         auto p = s.getTransform().transformPoint(vertex);
 
         vertices[i] = (Vector2)p;
@@ -114,7 +123,6 @@ Vector2 CollisionShape::getProjection(Vector2 axis, Vector2* vertices, unsigned 
             max = p;
         }
     }
-    delete vertices;
     return {min, max};
 }
 

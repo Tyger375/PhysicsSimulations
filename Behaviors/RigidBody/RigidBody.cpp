@@ -1,4 +1,5 @@
 #include "RigidBody.h"
+#include "../CollisionShape/Detection.cuh"
 
 void RigidBody::update() {
     auto deltaTime = GlobalVars::fixedDeltaTime;
@@ -163,11 +164,11 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             directionsA[i] = dA;
             directionsB[i] = dB;
 
-            auto angularLinearVelocityA = orthogonalA * rb->angularVelocity;
-            auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
+            auto angularLinearVelocityA = orthogonalA * rb->oldAngular;
+            auto angularLinearVelocityB = orthogonalB * rb2->oldAngular;
 
             // Calculate relative velocity
-            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
+            Vector2 rv = (rb2->oldVelocity + angularLinearVelocityB) - (rb->oldVelocity + angularLinearVelocityA);
             // Calculate relative velocity in terms of the normal direction
             double velAlongNormal = rv.dot(normal);
 
@@ -202,7 +203,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             rb2->angularVelocity += dB.cross(impulse).z * inv_inertia2;
         }
 
-        const double percent = 0.8; // usually 20% to 80%
+        const double percent = 0.2; // usually 20% to 80%
 
         const double slop = 0.01; // usually 0.01 to 0.1
 
@@ -213,7 +214,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 
 
         //Fixing velocities so objects don't look buggy
-        if ((rb->velocity.magnitude()) < 0.1)
+        /*if ((rb->velocity.magnitude()) < 0.1)
         {
             rb->velocity.x *= abs(c.normal.y);
             rb->velocity.y *= abs(c.normal.x);
@@ -223,7 +224,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         {
             rb2->velocity.x *= abs(c.normal.y);
             rb2->velocity.y *= abs(c.normal.x);
-        }
+        }*/
 
         if ((rb->angularVelocity) < 0.001)
         {
@@ -260,15 +261,19 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
         (first.y > otherPos.y && second.y < otherPos.y))
         return Colliding{false};
 
-    const float precision = 0.01f;
-    const int max = (int)(1 / precision);
-
-    auto direction = finalPos - startPos;
     auto sprite = parent;
+    auto direction = finalPos - startPos;
+    Colliding colliding;
+
+#ifdef USECUDA
+    //STILL IN BETA
+    colliding = checkContinuousWrapper(startPos, direction, sprite, m.getBounds());
+#else
+    const float precision = 0.1f;
+    const int max = (int)(1 / precision);
 
     auto pPos = startPos;
 
-    Colliding colliding{false};
     for (int i = 0; i <= max; i++) {
         float j = (float)i / (float)max;
 
@@ -282,6 +287,7 @@ struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, Col
         }
         pPos = pos;
     }
+#endif
 
     return colliding;
 }

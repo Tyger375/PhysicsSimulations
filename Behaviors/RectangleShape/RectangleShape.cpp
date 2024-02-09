@@ -63,7 +63,7 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
 
     if (type == CIRCLE)
         //return collidingWithCircle(m);
-        return Colliding{};
+        return Colliding{}; //TODO: reimplement collision detection for circles
     else if (type == RECTANGLE)
     {
         auto *s = &this->bounds;
@@ -76,12 +76,14 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
         const unsigned int length2 = m.getBounds()->getPointCount();
         Vector2 *axes2 = getAxes(*m.getBounds());
 
+        Colliding obj;
+        obj.collidingPoints = findContactPoints(s, m.getBounds());
+
         auto c1 = getCollision(axes, length, this->bounds, *m.getBounds());
         auto c2 = getCollision(axes2, length2, this->bounds, *m.getBounds());
 
         auto colliding = c1.collision && c2.collision;
 
-        Colliding obj;
         obj.collision = colliding;
 
         /*if (c1.overlap <= c2.overlap)
@@ -104,8 +106,6 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
             obj.penetration = c1.penetration;
         else
             obj.penetration = c2.penetration;*/
-
-        obj.collidingPoints = findContactPoints(s, m.getBounds());
 
         return obj;
     }

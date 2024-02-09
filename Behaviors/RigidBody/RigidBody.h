@@ -30,6 +30,9 @@ protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
 
+    Vector2 oldVelocity{};
+    double oldAngular{};
+
     CollisionDetection cdType;
     const float Fc = 0.1; //Friction coefficient
 public:
@@ -39,7 +42,7 @@ public:
     double inertia{};
     double inv_inertia{};
 
-    float restitution = .0;
+    float restitution = 0.f;
 
     Vector2 velocity{};
     double angularVelocity = 0.f;
@@ -52,7 +55,6 @@ public:
             Entity* entityParent,
             CollisionShape* bounds,
             CollisionDetection collisionDetectionType,
-            float mass,
             bool useGravity = true
             ) : Behavior(entityParent)
     {
@@ -114,6 +116,9 @@ public:
             //Adding gravity
             this->velocity -= .5f * Vector2(0, PhysicsLaws::GravityAcceleration) * deltaTime;
         }
+
+        oldVelocity = velocity;
+        oldAngular = angularVelocity;
     }
 
     void update() override;
@@ -160,6 +165,10 @@ public:
         }
         debugLines.clear();
         debugPoints.clear();
+    }
+
+    inline void setCollisionDetectionMode(CollisionDetection mode) {
+        cdType = mode;
     }
 };
 

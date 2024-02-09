@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
-project(PhysicsSimulations)
+project(PhysicsSimulations CUDA CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 17)
 
 ## DEPENDENCY
 
@@ -9,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(ROOT_BIN_DIR "C:/root_v6.30.02/bin")
 set(ROOT_DIR "C:/root_v6.30.02/cmake")
 set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
+set(USE_CUDA false)
 
 # Setting ROOT
 find_package(ROOT REQUIRED COMPONENTS CORE RIO Net Graf Gpad)
@@ -26,6 +28,8 @@ add_library(
         Behaviors/RigidBody/RigidBody.cpp main.h
         Behaviors/CollisionShape/CollisionShape.h
         Behaviors/CollisionShape/CollisionShape.cpp
+        Behaviors/CollisionShape/Detection.cu
+        Behaviors/CollisionShape/Detection.cuh
 
         Behaviors/RectangleShape/RectangleShape.h
         Behaviors/RectangleShape/RectangleShape.cpp
@@ -49,6 +53,9 @@ add_library(
         Vectors/Vector3.h
 )
 
+set_target_properties(Main PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON)
+
 target_link_libraries(Main
         PUBLIC
         sfml-graphics
@@ -63,6 +70,16 @@ target_link_libraries(Main
 add_executable(Test main.cpp)
 target_link_libraries(Test Main)
 target_compile_definitions(Test PUBLIC SIMULATION=1)
+
+add_executable(TestCuda main.cpp)
+target_link_libraries(TestCuda Main)
+target_compile_definitions(TestCuda PUBLIC
+        SIMULATION=1
+)
+
+if(${USE_CUDA})
+    add_compile_definitions(USECUDA)
+endif()
 
 add_executable(Projectile main.cpp)
 target_link_libraries(Projectile Main)
