@@ -1,0 +1,40 @@
+function main() {
+    auto window = new RenderWindow();
+    auto graphsManager = new GraphsManager();
+
+    auto simulation = new Simulation();
+
+    while (true) {
+        simulation.onUpdate();
+
+        // update on fixed delta time
+        // (we will talk about this later)
+        for (entity in entities) {
+            entity.beforeFixedUpdate();
+        }
+
+        for (entity in entities) {
+            entity.checkCollisions();
+        }
+
+        for (entity in entities) {
+            entity.fixedUpdate();
+        }
+
+        simulation.onDrawGraphs();
+
+        // calculations are done, now let's draw everything
+
+        window.clear();
+
+        for (auto entity: GlobalVars::entities) {
+            entity.render(window);
+        }
+
+        simulation.onRender(window);
+
+        graphsManager.render();
+
+        window.display();
+    }
+}

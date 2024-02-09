@@ -1,0 +1,8 @@
+class Behavior {
+public:
+    Entity* entity;
+    explicit Behavior(Entity* parent) : entity(parent) {}
+    virtual ~Behavior() = default;
+
+    virtual void update() = 0;
+};
