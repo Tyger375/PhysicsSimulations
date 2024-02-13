@@ -9,9 +9,9 @@ void RigidBody::update() {
     auto m = this->velocity * deltaTime;
 
     //Transforming meters to pixels
-    //1 m = 1000 px
-    //pos:1 = x: 1000
-    m *= 1000.f;
+    //1 m = 100 px
+    //pos:1 = x: 100
+    m *= 100.f;
     pos += m;
 
     auto rot = math::degToRad(parent->getRotation());
@@ -23,83 +23,7 @@ void RigidBody::update() {
     parent->setRotation((float)math::radToDeg(rot));
 
 
-    /*
-     * TODO: Reimplement inclined plane and friction
-    if (!isOnGround((Vectors)parent->getPosition(), pos, 0.5f * velocity + oldVelocity, &obj))
-    {
-
-    }
-    else
-    {
-        auto b = obj->getBounds();
-        auto doneRotating = std::abs(b->getRotation() - parent->getRotation()) < 1.f;
-
-        if (!doneRotating)
-        {
-            auto angle = (float) math::lerp(parent->getRotation(), b->getRotation(), deltaTime * 5);
-            parent->setRotation(angle);
-        }
-
-        auto angle = parent->getRotation();
-
-        if (velocity.y > 0 && angle == 0)
-        {
-            velocity.y = 0.f;
-        }
-
-        if (doneRotating)
-        {
-            //Inclined plane
-            auto w = (float) math::degToRad(angle);
-            auto Fp = mass * PhysicsLaws::GravityAcceleration;
-            auto FParallel = Fp * std::sin(w);
-            auto FOrthogonal = Fp * std::cos(w);
-            auto Fa = FOrthogonal * Fc;
-
-            if (Fa < FParallel) //was Fa > FParallel, but we're working with negative values
-            {
-                if (abs(velocity.x) < 0.1)
-                {
-                    velocity.x = 0.f;
-                }
-                else
-                {
-                    auto acceleration = Fa / mass;
-                    auto sign = math::sign(velocity.x);
-                    if (abs(acceleration) > velocity.x)
-                        acceleration = sign * -1 * velocity.x;
-                    velocity.x += acceleration * deltaTime;
-                }
-            }
-            else
-            {
-                auto alpha = 90 - angle;
-                auto wAlpha = (float) math::degToRad(alpha);
-
-                auto ParallelAcceleration = FParallel / mass;
-                auto acceleration = Vectors(
-                        ParallelAcceleration * std::sin(wAlpha),
-                        ParallelAcceleration * std::cos(wAlpha)
-                );
-                auto frictionAcceleration = Fa / mass;
-                auto fAcceleration = Vectors(
-                        frictionAcceleration * std::sin(wAlpha),
-                        frictionAcceleration * std::cos(wAlpha)
-                );
-
-                velocity -= acceleration * deltaTime;
-            }
-        }
-        m = oldVelocity * deltaTime + (0.5f * this->velocity * deltaTime);
-        m *= 1000.f;
-        pos += m;
-        std::cout << pos << std::endl;
-        parent->setPosition((sf::Vector2f) pos);
-        if (velocity.x != 0)
-        {
-            //pos.y = parent->getPosition().y;
-        }
-    }*/
+    //TODO: Reimplement friction
 }
 
 void RigidBody::checkCollisions(Vector2 newPosition) {
@@ -164,11 +88,11 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             directionsA[i] = dA;
             directionsB[i] = dB;
 
-            auto angularLinearVelocityA = orthogonalA * rb->oldAngular;
-            auto angularLinearVelocityB = orthogonalB * rb2->oldAngular;
+            auto angularLinearVelocityA = orthogonalA * rb->angularVelocity;
+            auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
 
             // Calculate relative velocity
-            Vector2 rv = (rb2->oldVelocity + angularLinearVelocityB) - (rb->oldVelocity + angularLinearVelocityA);
+            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
             // Calculate relative velocity in terms of the normal direction
             double velAlongNormal = rv.dot(normal);
 
@@ -226,7 +150,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             rb2->velocity.y *= abs(c.normal.x);
         }*/
 
-        if ((rb->angularVelocity) < 0.001)
+        /*if ((rb->angularVelocity) < 0.001)
         {
             rb->angularVelocity = 0;
         }
@@ -234,7 +158,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         if ((rb2->angularVelocity) < 0.001)
         {
             rb2->angularVelocity = 0;
-        }
+        }*/
 
         delete[] impulses;
         delete[] directionsA;
@@ -247,12 +171,13 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 struct Colliding RigidBody::checkContinuousCollision(const Vector2 startPos, CollisionShape& m) {
     auto otherPos = (Vector2)m.getBounds()->getPosition();
     auto deltaTime = GlobalVars::fixedDeltaTime;
-    auto finalPos = startPos + (this->velocity * deltaTime * 1000.0);
+    auto v = this->velocity * deltaTime * 100.0;
+    auto finalPos = startPos + v;
 
     auto size = m.getSize();
     if (m.getType() == ShapeType::CIRCLE)
         size.y = size.x;
-    auto bounds = math::getBounds(size, startPos, this->velocity * deltaTime * 1000.0);
+    auto bounds = math::getBounds(size, startPos, v);
 
     auto first = bounds.first;
     auto second = bounds.second;

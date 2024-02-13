@@ -64,7 +64,7 @@ namespace math
 
         getLine(start, end, a, b, c);
 
-        auto distance = (float)(abs(a * p.x + b * p.y + c) / sqrt(a * a + b * b));
+        auto distance = (float)(std::abs(a * p.x + b * p.y + c) / sqrt(a * a + b * b));
         // Calculate the coordinates of the closest point on the line
         auto closestPointX = (float)((b * (b * p.x - a * p.y) - a * c) / (a * a + b * b));
         auto closestPointY = (float)((a * (-b * p.x + a * p.y) - b * c) / (a * a + b * b));

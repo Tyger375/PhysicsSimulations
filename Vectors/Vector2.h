@@ -31,16 +31,6 @@ public:
         this->y = v.y;
     }
 
-    [[nodiscard]] std::string to_string() const {
-        std::string str;
-        str += "(";
-        str += std::to_string(x);
-        str += ", ";
-        str += std::to_string(y);
-        str += ")";
-        return str;
-    }
-
     #pragma region Operators
     Vector2 &operator+=(const Vector2 &other) {
         this->x += other.x;
@@ -120,7 +110,12 @@ public:
 
     [[nodiscard]] inline double magnitude() const { return std::sqrt(dot(*this)); }
 
-    [[nodiscard]] inline Vector2 normalize() const { return *this / magnitude(); }
+    [[nodiscard]] inline Vector2 normalize() const {
+        auto l = magnitude();
+        if (l == 0)
+            return *this;
+        return *this / l;
+    }
 
     [[nodiscard]] inline Vector2 orthogonal() const { return {-this->y, this->x}; }
 };

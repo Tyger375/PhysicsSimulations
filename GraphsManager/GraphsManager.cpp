@@ -1,12 +1,17 @@
 #include "GraphsManager.h"
 
-void GraphsManager::addGraph(const std::string &title) {
+void GraphsManager::addGraph(const std::string &title, const char* mode) {
     auto graph = std::make_unique<TGraph>(1024);
     graph->SetTitle(title.c_str());
     //graph->SetMinimum(0);
+    graph->SetMarkerSize(1.5);
+    graph->SetMarkerStyle(21);
     graph->SetLineWidth(3);
     graph->SetLineColor(kBlue);
-    graphs.push_back(std::move(graph));
+    static Graph g;
+    g.graph = std::move(graph);
+    g.mode = mode;
+    graphs.push_back(&g);
 }
 
 void GraphsManager::build() {
@@ -17,7 +22,8 @@ void GraphsManager::build() {
 
     for (int i = 0; i < size; i++) {
         canvas->cd(i+1);
-        graphs[i]->Draw();
+        auto g = graphs[i];
+        g->graph->Draw(g->mode);
     }
 }
 

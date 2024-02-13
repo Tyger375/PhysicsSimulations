@@ -86,26 +86,45 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
 
         obj.collision = colliding;
 
-        /*if (c1.overlap <= c2.overlap)
-        {
-            obj.overlap = c1.overlap;
-            obj.normal = c1.normal;
-        }
-        else
-        {
-            obj.overlap = c2.overlap;
-            obj.normal = c2.normal;
-        }*/
-
         obj.overlap = c1.overlap;
         obj.normal = c1.normal;
 
-        obj.penetration = c1.penetration;
+        //Resolve normal when there's only 1 colliding point
+        if (colliding && obj.collidingPoints.contactCount == 1) {
+            auto vertices = getGlobalVertices(*s);
+            auto l = s->getPointCount();
 
-        /*if (c1.penetration > c2.penetration)
-            obj.penetration = c1.penetration;
-        else
-            obj.penetration = c2.penetration;*/
+            auto index = -1;
+
+            for (int j = 0; j < s->getPointCount(); ++j) {
+                auto v = vertices[j];
+                auto p = obj.collidingPoints.pointA;
+                auto error = 5;
+                auto x = abs(v.x - p.x) < error;
+                auto y = abs(v.y - p.y) < error;
+                if (x && y)
+                    index = j;
+            }
+
+            if (index >= 0) {
+                auto p1 = vertices[index];
+
+                auto p2 = vertices[(index - 1) < 0 ? (l - 1) : index - 1];
+
+                auto ax1 = (p2 - p1).normalize();
+
+                p2 = vertices[(index + 1) >= l ? 0 : index + 1];
+                auto ax2 = (p1 - p2).normalize();
+
+                ax1 = ax1.orthogonal();
+                ax2 = ax2.orthogonal();
+
+                auto v = ax1 + ax2;
+                obj.normal = v.normalize();
+            }
+        }
+
+        obj.penetration = c1.penetration;
 
         return obj;
     }
@@ -115,6 +134,6 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
 
 void RectangleShape::update()
 {
-    bounds.setRotation(this->sprite->getRotation());
+    bounds.setRotation(sprite->getRotation());
     bounds.setPosition(sprite->getPosition());
 }

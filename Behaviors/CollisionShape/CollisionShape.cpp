@@ -12,17 +12,9 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
     auto vertices1 = getGlobalVertices(first);
     auto vertices2 = getGlobalVertices(second);
 
-    //auto detail = getCollisionAxisWrapper(axes, length, vertices1, first.getPointCount(), vertices2, second.getPointCount());
     for (int i = 0; i < length; i++)
     {
         auto axis = axes[i];
-        auto contains = false;
-        for (const auto &item: list) {
-            if (item == axis) { contains = true; break; }
-        }
-        if (contains)
-            continue;
-        list.push_back(axis);
 
         Vector2 p1 = getProjection(axis, vertices1, first.getPointCount());
         Vector2 p2 = getProjection(axis, vertices2, second.getPointCount());
@@ -38,17 +30,7 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
             auto newOverlap = Vector2(minOverlap, maxOverlap);
             auto lO = leastOverlap;
             auto nO = abs(newOverlap.x - newOverlap.y);
-            /*if (abs(lO - nO) < 0.0001) {
-                auto a = axis;
-                if (p1.y > p2.y)
-                    a.y *= -1;
-                if (p1.x > p2.x)
-                    a.x *= -1;
 
-                leastAxis += a;
-                leastAxis = leastAxis.normalize();
-            }
-            else */
             if (nO < lO) {
                 //leastOverlap = newOverlap;
                 leastOverlap = nO;
@@ -70,7 +52,6 @@ Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const
     delete[] vertices2;
 
     return Colliding{colliding, greatestOverlap, leastOverlap, leastAxis};
-    //return Colliding{detail.collision, detail.greatestOverlap, detail.leastOverlap, detail.leastAxis};
 }
 
 Vector2* CollisionShape::getGlobalVertices(const sf::Shape& s)

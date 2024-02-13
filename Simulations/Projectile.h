@@ -19,25 +19,24 @@ private:
 public:
     void onCreate() override {
         //Graphs
-        graphsManager.addGraph("Graph");
-        graphsManager.addGraph("Graph");
+        graphsManager.addGraph("Graph", "APL");
+        graphsManager.addGraph("Graph", "APL");
         graphsManager.build();
 
         player.rb.useGravity = true;
         player.rb.setDensity(10);
-        player.setPosition(Vector2(100, 500));
-        std::cout << player.id << std::endl;
+        player.setPosition(Vector2(100, 350));
         //player.setRotation(10);
         //player.rb.addForce(Vectors(100.f, -50.f * 0.f));
 
         ground.rb.useGravity = false;
         ground.rb.setDensity(0);
-        ground.setPosition(Vector2(160, 650));
+        ground.setPosition(Vector2(160, 450));
         //ground.setRotation(10);
 
-        box.rb.useGravity = true;
-        box.rb.setDensity(50);
-        box.setPosition(Vector2(50, 570));
+        box.rb.useGravity = false;
+        box.rb.setDensity(0);
+        box.setPosition(Vector2(50, 400));
 
         static Object ground2(ground2Size, ground2Size, sf::Color::Blue);
         ground2.rb.useGravity = false;
@@ -55,8 +54,6 @@ public:
         GlobalVars::entities.push_back(&ground);
         //GlobalVars::entities.push_back(&ground2);
         //GlobalVars::entities.push_back(&verticalGround);
-
-        std::cout << ground.rb.inv_mass << std::endl;
     }
     void onEvent(sf::Event e) override {
         if (Utils::keyPressed(e, sf::Keyboard::N)) {
@@ -70,8 +67,8 @@ public:
         //player.rb.debug(window);
     }
     void onDrawGraphs() override {
-        graphsManager.addPoint(1, time, player.rb.velocity.magnitude());
-        graphsManager.addPoint(0, time, player.rb.angularVelocity);
+        //graphsManager.addPoint(1, time, player.rb.velocity.magnitude());
+        //graphsManager.addPoint(0, time, player.rb.angularVelocity);
     }
 };
 

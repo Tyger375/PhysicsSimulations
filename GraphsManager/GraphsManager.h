@@ -12,9 +12,14 @@
 #include "TAxis.h"
 #include "TStyle.h"
 
+typedef struct Graph {
+    std::unique_ptr<TGraph> graph;
+    Option_t* mode;
+} Graph;
+
 class GraphsManager {
 private:
-    std::vector<std::unique_ptr<TGraph>> graphs;
+    std::vector<Graph*> graphs;
     TApplication rootApp;
     std::unique_ptr<TCanvas> canvas;
 public:
@@ -26,13 +31,13 @@ public:
         canvas->SetWindowPosition(-2048, 0);
     }
 
-    void addGraph(const std::string& title);
+    void addGraph(const std::string& title, const char* mode);
 
     void build();
 
     inline void addPoint(int i, double x, double y)
     {
-        graphs[i]->AddPoint(x, y);
+        graphs[i]->graph->AddPoint(x, y);
     }
 
     void render();

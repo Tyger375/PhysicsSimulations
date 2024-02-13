@@ -20,7 +20,7 @@ double GlobalVars::fixedDeltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1500, 750), "Test");
+    sf::RenderWindow window(sf::VideoMode(1024, 500), "Test");
     window.setFramerateLimit(60);
 
     sf::Text txtFPS;
@@ -40,8 +40,9 @@ int main() {
     // Implementing fixed looping
     sf::Clock clock;
     GlobalVars::fixedDeltaTime = 1.0 / 40.0;
-    const sf::Time timePerFrame = sf::seconds((float)GlobalVars::fixedDeltaTime);
-    sf::Time deltaTime = sf::Time::Zero;
+    double accumulator = 0;
+
+    //TODO: Better performance
 
     while (window.isOpen())
     {
@@ -81,18 +82,10 @@ int main() {
             }
         }
 
-        simulation->onUpdate();
+        accumulator += GlobalVars::deltaTime;
 
-        if (simulation->start && !simulation->paused) {
-            for (auto entity: GlobalVars::entities) {
-                entity->update();
-            }
-        }
-
-        deltaTime += clock.restart();
-
-        while (deltaTime >= timePerFrame) {
-            deltaTime -= timePerFrame;
+        while (accumulator >= GlobalVars::fixedDeltaTime) {
+            accumulator -= GlobalVars::fixedDeltaTime;
             if (simulation->start && !simulation->paused) {
                 for (auto entity: GlobalVars::entities) {
                     entity->beforeFixedUpdate();
@@ -105,6 +98,14 @@ int main() {
                 for (auto entity : GlobalVars::entities) {
                     entity->fixedUpdate();
                 }
+            }
+        }
+
+        simulation->onUpdate();
+
+        if (simulation->start && !simulation->paused) {
+            for (auto entity: GlobalVars::entities) {
+                entity->update();
             }
         }
 

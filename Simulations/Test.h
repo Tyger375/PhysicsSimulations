@@ -10,12 +10,26 @@ using namespace Simulations;
 
 class TestSimulation : public Simulation {
 private:
-    Vector2 size = Vector2(50, 50);
+    Vector2 size = Vector2(25, 25);
     Object player = Object(size, size);
 public:
     void onCreate() override {
-        player.rb.setDensity(10);
-        player.setPosition(Vector2(50, 220));
+        graphsManager.addGraph("Test", "AP");
+        graphsManager.build();
+
+        player.rb.setDensity(1);
+        player.setPosition(Vector2(550, 350));
+        player.setRotation(15);
+
+        auto bounds = player.getSprite();
+        auto l = bounds.getPointCount();
+        auto v = new Vector2[l];
+
+        auto matrix = bounds.getTransform();
+        for (int i = 0; i < l; ++i) {
+            v[i] = (Vector2)matrix.transformPoint(bounds.getPoint(i));
+            graphsManager.addPoint(0, v[i].x, v[i].y);
+        }
 
         auto groundSize = Vector2(500, 50);
         static Object ground(groundSize, groundSize, sf::Color::Green);
@@ -41,7 +55,7 @@ public:
     void onUpdate() override {
     }
     void onRender(sf::RenderWindow* window) override {
-        //player.rb.debug(window);
+        player.rb.debug(window);
     }
     void onDrawGraphs() override {
     }
