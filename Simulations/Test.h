@@ -14,7 +14,10 @@ private:
     Object player = Object(size, size);
 public:
     void onCreate() override {
-        graphsManager.addGraph("Test", "AP");
+        graphsManager.setCanvasSize(sf::Vector2i(1550, 700));
+        graphsManager.setCanvasPosition(sf::Vector2i(-2048, 0));
+
+        graphsManager.addGraph("Test");
         graphsManager.build();
 
         player.rb.setDensity(1);
