@@ -1,0 +1,289 @@
+@class article\
+
+@use ./images/\
+
+@title Physics Simulations\
+@author Edoardo Takanen\
+@date\
+
+@document {
+    @maketitle\
+
+    @center {
+        @LARGE\ Abstract
+    }
+    
+    One of the subjects I'm more interested in high school, is 100$$percent$$ physics,
+    we started with the concept of linear motion, then proceeding with things more "complex" and inarguably more interesting.
+    Thus, I decided to start developing physics simulations, to challenge myself and see how many things I learn at school I can implement here.
+
+    @newpage\
+    @tableofcontents\
+
+    @newpage\
+
+    @section (label=sec:introduction) Introduction\
+
+    These simulations will just be focusing 2D.\\
+    I chose to develop this using the C++ programming language and the graphics library
+    @href https://www.sfml-dev.org/ SFML\, attempting to implement by myself everything I need (collision detection, vectors etc.).
+    C++ offers a very good standard library to start from as well as low level and memory management, these tools
+    will be very useful for the simulations to run fast.\\
+    I will also be using a library for rendering real time plots of our simulations, which can help us to analyze data while the program is running.
+    The library I am talking about is
+    @href https://root.cern/ ROOT\,
+    a powerful open-source data analysis framework coming from the CERN.
+
+    @newpage\
+
+    @section (label=sec:the-engine) The Engine\
+
+    The first question obviously is: how can we structure our simulations' engine?\\
+    I would like to follow the idea of how the
+    @href https://unity.com/ Unity engine\ $$fs$$ works.
+    The idea I have in mind is not only to create this physics engine, but I also want to build an API from which people can extend and experiment the engine.
+    So the idea is to give people the tools to create something and learn, pretty much like the SFML library that I will be using.\\
+    Now, let's define some basic things the engine will have:
+
+    @list {
+        @item {
+            Entities\\
+            The basic class that let us instantiate things
+        }
+        @item {
+            Objects\\
+            More complex class, extends and handles specific cases for some entities (rectangles, circles, ropes etc.)
+        }
+        @item {
+            Behaviors\\
+            The ones that give some abilities and properties to our entities
+        }
+        @item {
+            Simulation class\\
+            The main class that handles entities and everything that is needed for our simulations
+        }
+        @item {
+            Graphs manager\\
+            The class that helps us plotting data
+        }
+    }
+
+    @newpage\
+
+    We will take for granted adding vectors, which is just implementing every operator.\\
+    Now we are going to look at the main function that runs a simple (and empty for now) simulation, let's write it with pseudo-code for simplicity.
+
+    @code (language=C++, label=lst:main.cpp) ./code/main.txt\
+
+    \\
+    This is a very simplified version of what we are doing every frame, I will discuss later about the choice of this approach.
+
+    @newpage\
+
+    @section (label=sec:simulation) Simulation\
+
+    As I said above, I would like to build a usable API out of this engine.\\
+    To make this, I created the Simulation class:
+
+    @code (language=C++, label=lst:simulation.cpp) ./code/simulation.txt\
+
+    For this paper we will focus on the event functions you can see above.
+
+    @subsection (label=subsec:oncreate) onCreate\
+    @subsection (label=subsec:onevent) onEvent\
+    @subsection (label=subsec:onupdate) onUpdate\
+    @subsection (label=subsec:ondrawgraphs) onDrawGraphs\
+    @subsection (label=subsec:onrender) onRender\
+
+    @newpage\
+
+    @section (label=sec:entity) Entity\
+
+    The entity class is the primary structure for instantiating and managing things in the simulation.
+
+    @code (language=C++, label=lst:entity.cpp) ./code/entity.txt\
+
+    These are all the methods every entity needs.
+    I will talk about behaviors later, now, before looking at the 3 main phases of each entity, I want to discuss the difference between the two events update and fixed update.
+
+    @subsection (label=subsec:update-vs-fixed-update) update vs fixed update\
+
+    Basically, update runs once per frame.
+    fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is.\\
+    For this reason fixed update should be used when applying physics-related functions, because you know it will be executed exactly in sync with the physics engine itself.\\
+    Meanwhile, update can vary out of step with the physics engine depending on how much it takes to render the frame.
+    If it was used for physics, it would give different results every time!
+
+    @subsection (label=subsec:update) update\
+
+    For this reason, since update is not recommended for physics functions, the function is not used, but I wanted to add it for completeness.
+
+    @subsection (label=subsec:fixed-update) fixed update\
+
+    Unlike update, fixed update is very used since everything here is related to physics.
+    I decided to break this out and differentiate the fixed update process into 3 phases:
+
+    @subsubsection beforeFixedUpdate\
+
+    This function is the first called, and it is used to update variables like the velocity.\\
+    For example, we make sure gravity is applied to our velocity each time.
+
+    @subsubsection checkCollisions\
+
+    We then check for collisions for each entity in the simulation and resolve them.
+    If a collision happens, we may want to apply some impulses to separate those entities.
+
+    @subsubsection fixedUpdate\
+
+    Last of all, we update everything like the position or rotation.
+
+    @subsection (label=subsec:render) render\
+
+    The render function is the last function called every frame.
+    With this we just render our entities on the screen.
+
+    @newpage\
+
+    @subsection (label=subsec:object) Object\
+
+    @newpage\
+
+    @section (label=sec:behavior) Behavior\
+
+    Behaviors, as I said in the introduction, are the components that give some properties to our entities.
+    This is the abstract class for a behavior:
+
+    @code (language=C++, label=lst:behavior.cpp) ./code/behavior.txt\
+
+    Behaviors can be added to entities using the **AddBehavior()** function and can be retrieved with the
+    **TryGetBehavior()** function
+    
+    @newpage\
+
+    @subsection (label=subsec:rigidbody) Rigidbody\
+
+    The RigidBody component is an implementation of physics for our entities.
+    The two main functions are the followings:
+
+    @subsubsection Collision Detection\
+
+    Collision detection is used to check if an object is colliding with another object
+    This part will not cover the two collision detection algorithms (aabb/sat).
+    I will talk about them in @ref subsec:collisionshape\.\\
+    The two types of collision detection I have implemented are:
+
+    @list {
+        @item {
+            Discrete
+        }
+        @item {
+            Continuous
+        }
+    }
+
+    @subsubsection Discrete\
+
+    Discrete collision detection simply uses aabb/sat algorithm and detects if there is a collision on the position where the object wants to go.
+
+    @code (language=C++, label=lst:discrete.cpp) ./code/discrete.txt\
+
+    @paragraph Pros and Cons\
+    @list {
+        @item {
+            **Pros**\\
+            Low computational cost
+        }
+        @item {
+            **Cons**\\
+            Tunneling
+        }
+    }
+
+    @newpage\
+
+    @subsubsection What's tunneling?\
+
+    @figure (H) {
+        @graphic TunnelingProblem\
+        @centering\
+        @caption The tunneling problem\
+        @label fig:tunneling\
+    }
+
+    Tunneling is when an object moves so fast from one frame to another that
+    he completely passes another object.
+
+    @list {
+        @item {
+            Make sure an object doesn't move too fast
+        }
+        @item {
+            Increase frames per second
+        }
+        @item {
+            Continuous collision detection
+        }
+        @item {
+            Swept volume
+        }
+    }
+
+    @subsubsection Continuous\
+
+    @figure (H) {
+        @graphic (width=.5$$textwidth$$) ContinuousCollision\
+        @centering\
+        @caption Continuous collision detection\
+        @label fig:continuous\
+    }
+
+    Continuous collision detection checks every position between start and end position, so that the computer knows the exact position where two object are colliding.
+
+    @paragraph Pros and Cons\
+
+    @list {
+        @item {
+            **Pros**\\
+            Precise collision detection
+        }
+        @item {
+            **Cons**\\
+            Higher computation cost
+        }
+    }
+
+    @subsubsection Swept volume\
+
+    @figure (H) {
+        @graphic (width=1$$textwidth$$) SweptVolume\
+        @centering\
+        @caption Swept volume\
+        @label fig:sweptvolume\
+    }
+
+    Swept volume is the volume of the object from one frame to the next.
+    With this method, we simply check the collisions considering the whole area.
+
+    @paragraph Pros and Cons\
+    @list {
+        @item {
+            **Pros**\\
+            Low computation cost
+        }
+        @item {
+            **Cons**\\
+            We do not know the precise position where the collision happened
+        }
+    }
+
+    @subsubsection Velocity management\
+
+    Velocity is used to calculate the next position of an object.\\
+    **Note:** velocity can be assigned from its variable or can be updated using the **addForce()** function.\\
+    Velocity is updated on fixed update, this also includes gravity.
+
+    @newpage\
+
+    @subsection (label=subsec:collisionshape) CollisionShape\
+    @section (label=sec:graphsmanager) GraphsManager\
+}
