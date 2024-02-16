@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <SFML/System/Vector2.hpp>
 //ROOT
 #include <TROOT.h>
 #include "TCanvas.h"
@@ -63,7 +64,7 @@ public:
      * @param func override and change some graph's properties
      * @param mode draw mode for the graph
      */
-    void addGraph(
+    void addGraph(\
             const char* title,
             graph_modifier func = [](TGraph* _){},
             GraphMode mode = GraphMode::DEFAULT

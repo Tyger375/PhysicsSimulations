@@ -30,11 +30,9 @@ protected:
     sf::Shape* parent;
     CollisionShape* collisionShape;
 
-    Vector2 oldVelocity{};
-    double oldAngular{};
-
     CollisionDetection cdType;
-    const float Fc = 0.1; //Friction coefficient
+    const float staticFriction = 0.6f; //Friction coefficient
+    const float dynamicFriction = 0.4f;
 public:
     double mass{};
     double inv_mass{};
@@ -46,6 +44,7 @@ public:
 
     Vector2 velocity{};
     double angularVelocity = 0.f;
+
     bool useGravity;
     std::vector<struct Debug::Line> debugLines;
     std::vector<struct Debug::Point> debugPoints;
@@ -116,9 +115,6 @@ public:
             //Adding gravity
             this->velocity -= .5f * Vector2(0, PhysicsLaws::GravityAcceleration) * deltaTime;
         }
-
-        oldVelocity = velocity;
-        oldAngular = angularVelocity;
     }
 
     void update() override;

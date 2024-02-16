@@ -14,16 +14,19 @@ void RigidBody::update() {
     m *= 100.f;
     pos += m;
 
-    auto rot = math::degToRad(parent->getRotation());
+    parent->setPosition((sf::Vector2f) pos);
+
+    auto oldRot = parent->getRotation();
+    auto rot = math::degToRad(oldRot);
 
     auto r = this->angularVelocity;
     rot += r;
 
-    parent->setPosition((sf::Vector2f) pos);
-    parent->setRotation((float)math::radToDeg(rot));
-
-
-    //TODO: Reimplement friction
+    auto deg = (float)math::radToDeg(rot);
+    auto deltaR = std::abs(deg - oldRot);
+    if (deltaR < 1.5f)
+        deg = std::round(deg / 10.f) * 10.f;
+    parent->setRotation(deg);
 }
 
 void RigidBody::checkCollisions(Vector2 newPosition) {
@@ -56,6 +59,8 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
 
         // Calculate restitution
         float e = std::min(rb->restitution, rb2->restitution);
+        float staticF = (rb->staticFriction + rb2->staticFriction) / 2.f;
+        float dynamicF = (rb->dynamicFriction + rb2->dynamicFriction) / 2.f;
 
         Vector2 contacts[] = {c.collidingPoints.pointA, c.collidingPoints.pointB};
 
@@ -77,6 +82,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         auto inv_inertia1 = rb->inv_inertia;
         auto inv_inertia2 = rb2->inv_inertia;
 
+        // calculating impulses
         for (int i = 0; i < contactCount; i++) {
             auto contact = contacts[i];
             auto dA = contact - thisPos;
@@ -115,6 +121,7 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             impulses[i] = impulse;
         }
 
+        // applying impulses
         for (int i = 0; i < contactCount; i++) {
             auto impulse = impulses[i];
             auto dA = directionsA[i];
@@ -136,33 +143,66 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
         rb->parent->setPosition(rb->parent->getPosition() - (sf::Vector2f)(inv_mass1 * correction));
         rb2->parent->setPosition(rb2->parent->getPosition() + (sf::Vector2f)(inv_mass2 * correction));
 
+        // calculating friction
+        // calculating impulses
+        for (int i = 0; i < contactCount; i++) {
+            auto dA = directionsA[i];
+            auto dB = directionsB[i];
 
-        //Fixing velocities so objects don't look buggy
-        /*if ((rb->velocity.magnitude()) < 0.1)
-        {
-            rb->velocity.x *= abs(c.normal.y);
-            rb->velocity.y *= abs(c.normal.x);
+            auto orthogonalA = dA.orthogonal();
+            auto orthogonalB = dB.orthogonal();
+
+            auto angularLinearVelocityA = orthogonalA * rb->angularVelocity;
+            auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
+
+            // Calculate relative velocity
+            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
+
+            Vector2 tang = rv - rv.dot(normal) * normal;
+
+            if (tang == Vector2())
+                continue;
+
+            tang = tang.normalize();
+
+            // orthogonal dot normal
+            auto oNa = orthogonalA.dot(tang);
+            auto oNb = orthogonalB.dot(tang);
+
+            auto denom = (inv_mass1 + inv_mass2) + ((oNa * oNa) * inv_inertia1) + ((oNb * oNb) * inv_inertia2);
+            // Calculate impulse scalar
+            double jFriction = -rv.dot(tang);
+            jFriction /= denom;
+            //Applying impulse as half for when we have 2 contact points
+            jFriction /= (float)contactCount;
+
+            Vector2 friction;
+            auto j = impulses[i].magnitude();
+            if (std::abs(jFriction) <= j * staticF)
+                friction = jFriction * tang;
+            else
+                friction = -j * tang * dynamicF;
+            impulses[i] = friction;
         }
 
-        if ((rb2->velocity.magnitude()) < 0.1)
-        {
-            rb2->velocity.x *= abs(c.normal.y);
-            rb2->velocity.y *= abs(c.normal.x);
-        }*/
+        // applying impulses
+        for (int i = 0; i < contactCount; i++) {
+            auto friction = impulses[i];
+            auto dA = directionsA[i];
+            auto dB = directionsB[i];
 
-        /*if ((rb->angularVelocity) < 0.001)
-        {
-            rb->angularVelocity = 0;
+            // Friction force has to be less or equal to Fn * Static friction
+
+            rb->velocity -= friction * inv_mass1;
+            rb->angularVelocity -= dA.cross(friction).z * inv_inertia1;
+
+            rb2->velocity += friction * inv_mass2;
+            rb2->angularVelocity += dB.cross(friction).z * inv_inertia2;
         }
 
-        if ((rb2->angularVelocity) < 0.001)
-        {
-            rb2->angularVelocity = 0;
-        }*/
-
-        delete[] impulses;
-        delete[] directionsA;
-        delete[] directionsB;
+        free(impulses);
+        free(directionsA);
+        free(directionsB);
     }
 }
 

@@ -52,7 +52,7 @@ public:
     }
     void onEvent(sf::Event e) override {
         if (Utils::keyPressed(e, sf::Keyboard::N)) {
-            player.rb.addForce(Vector2(50, 0));
+            player.rb.addForce(Vector2(500, 0), IMPULSE);
         }
     }
     void onUpdate() override {
