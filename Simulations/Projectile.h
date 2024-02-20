@@ -11,15 +11,18 @@ class ProjectileSimulation : public Simulation {
 private:
     Vector2 size = Vector2(50, 50);
     Mesh playerMesh = Mesh::RectangleMesh(size, sf::Color::Red);
-    Object player = Object(playerMesh, RectangleShape(&playerMesh, size));
+    RectangleShape playerShape = RectangleShape(&playerMesh, size);
+    Object player = Object(playerMesh, &playerShape);
 
     Vector2 boxSize = size + Vector2(50, 0);
     Mesh boxMesh = Mesh::RectangleMesh(size, sf::Color::Magenta);
-    Object box = Object(boxMesh, RectangleShape(&boxMesh, boxSize));
+    RectangleShape boxShape = RectangleShape(&boxMesh, boxSize);
+    Object box = Object(boxMesh, &boxShape);
 
     Vector2 ground2Size = Vector2(500, 50);
     Mesh groundMesh = Mesh::RectangleMesh(ground2Size, sf::Color::Blue);
-    Object ground = Object(groundMesh, RectangleShape(&groundMesh, ground2Size));
+    RectangleShape groundShape = RectangleShape(&groundMesh, ground2Size);
+    Object ground = Object(groundMesh, &groundShape);
 public:
     void onCreate() override {
         //Graphs

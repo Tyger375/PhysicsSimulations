@@ -12,7 +12,8 @@ class TestSimulation : public Simulation {
 private:
     Vector2 size = Vector2(25, 25);
     Mesh playerMesh = Mesh::RectangleMesh(size, sf::Color::Red);
-    Object player = Object(playerMesh, RectangleShape(&playerMesh, size));
+    RectangleShape playerShape = RectangleShape(&playerMesh, size);
+    Object player = Object(playerMesh, &playerShape);
 public:
     void onCreate() override {
         graphsManager.setCanvasSize(sf::Vector2i(1550, 700));
@@ -27,7 +28,8 @@ public:
 
         auto groundSize = Vector2(500, 50);
         Mesh groundMesh = Mesh::RectangleMesh(groundSize, sf::Color::Green);
-        static Object ground(groundMesh, RectangleShape(&groundMesh, groundSize));
+        auto* groundShape = new RectangleShape(&groundMesh, groundSize);
+        static Object ground(groundMesh, groundShape);
         ground.rb.useGravity = false;
         ground.rb.setDensity(0);
         ground.setPosition(Vector2(250, 450));
@@ -53,7 +55,6 @@ public:
     }
     void onRender(sf::RenderWindow* window) override {
         player.rb.debug(window);
-        window->draw(*player.shape.getBounds());
     }
     void onDrawGraphs() override {
     }

@@ -15,6 +15,7 @@ public:
 
     template <class T> T* TryGetBehavior() {
         for (auto behavior : behaviors) {
+            //An error occurs here? maybe you've attached a freed class? try using a pointer "auto* b = new [Behavior]();"
             T* a = dynamic_cast<T*>(behavior);
             if (a != nullptr) {
                 return a;
