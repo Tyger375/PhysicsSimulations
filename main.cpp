@@ -7,6 +7,9 @@ Simulations::Simulation* simulation = new RopeTestSimulation();
 #elif SIMULATION == 3
 #include "Simulations/Projectile.h"
 Simulations::Simulation* simulation = new ProjectileSimulation();
+#elif SIMULATION == 4
+#include "Simulations/Circles.h"
+Simulations::Simulation* simulation = new CirclesSimulation();
 #endif
 
 #include <SFML/Window.hpp>

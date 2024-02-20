@@ -11,7 +11,8 @@ using namespace Simulations;
 class TestSimulation : public Simulation {
 private:
     Vector2 size = Vector2(25, 25);
-    Object player = Object(size, size);
+    Mesh playerMesh = Mesh::RectangleMesh(size, sf::Color::Red);
+    Object player = Object(playerMesh, RectangleShape(&playerMesh, size));
 public:
     void onCreate() override {
         graphsManager.setCanvasSize(sf::Vector2i(1550, 700));
@@ -24,31 +25,24 @@ public:
         player.setPosition(Vector2(550, 350));
         player.setRotation(15);
 
-        auto bounds = player.getSprite();
-        auto l = bounds.getPointCount();
-        auto v = new Vector2[l];
-
-        auto matrix = bounds.getTransform();
-        for (int i = 0; i < l; ++i) {
-            v[i] = (Vector2)matrix.transformPoint(bounds.getPoint(i));
-            graphsManager.addPoint(0, v[i].x, v[i].y);
-        }
-
         auto groundSize = Vector2(500, 50);
-        static Object ground(groundSize, groundSize, sf::Color::Green);
+        Mesh groundMesh = Mesh::RectangleMesh(groundSize, sf::Color::Green);
+        static Object ground(groundMesh, RectangleShape(&groundMesh, groundSize));
         ground.rb.useGravity = false;
-        ground.setRotation(20);
-        ground.setPosition(Vector2(-100, 300));
+        ground.rb.setDensity(0);
+        ground.setPosition(Vector2(250, 450));
 
+        /*
         auto ground2Size = Vector2(500 * 10, 50);
         static Object ground2(ground2Size, ground2Size, sf::Color::Blue);
         ground2.rb.useGravity = false;
         ground2.rb.setDensity(0);
         ground2.setPosition(Vector2(250, 450));
 
-        GlobalVars::entities.push_back(&player);
         //GlobalVars::entities.push_back(&ground);
-        GlobalVars::entities.push_back(&ground2);
+        GlobalVars::entities.push_back(&ground2);*/
+        GlobalVars::entities.push_back(&player);
+        GlobalVars::entities.push_back(&ground);
     }
     void onEvent(sf::Event e) override {
         if (Utils::keyPressed(e, sf::Keyboard::N)) {
@@ -59,6 +53,7 @@ public:
     }
     void onRender(sf::RenderWindow* window) override {
         player.rb.debug(window);
+        window->draw(*player.shape.getBounds());
     }
     void onDrawGraphs() override {
     }

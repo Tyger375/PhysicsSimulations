@@ -7,9 +7,10 @@ class RopeMember : public Entity
 {
     sf::CircleShape shape;
     CircleShape collision;
+    Mesh mesh = Mesh(&shape);
 public:
     RopeMember(Vector2 pos, float radius, sf::Color c=sf::Color::Yellow)
-            : collision(&shape, this, radius)
+            : collision(&mesh, radius)
     {
         shape.setRadius(radius);
         shape.setPosition((sf::Vector2f) pos);

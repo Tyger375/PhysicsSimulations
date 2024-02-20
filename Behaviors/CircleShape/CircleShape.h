@@ -3,21 +3,23 @@
 
 
 #include "../CollisionShape/CollisionShape.h"
+#include "../Mesh/Mesh.h"
 
 class CircleShape : public CollisionShape {
 private:
     sf::CircleShape bounds;
 
-    bool collidingWithRectangle(CollisionShape&);
-    bool collidingWithCircle(CollisionShape&);
+    Colliding collidingWithRectangle(CollisionShape&);
+    Colliding collidingWithCircle(CollisionShape&);
 public:
-    CircleShape(sf::Shape *obj, Entity* parent, float radius) : CollisionShape(obj, parent)
+    CircleShape(Mesh *obj, float radius) : CollisionShape(obj->shape, nullptr)
     {
+        bounds.setOrigin(sf::Vector2f(radius, radius));
         bounds.setRadius(radius);
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 
-    sf::CircleShape * getBounds() override { return &bounds; }
+    sf::CircleShape* getBounds() override { return &bounds; }
 
     ShapeType getType() override { return CIRCLE; }
 

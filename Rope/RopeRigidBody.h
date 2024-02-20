@@ -25,11 +25,11 @@ public:
             Rope* rope
     ) :
             last(&*rope->members.end().operator--()), // last member
-            lastCollision(new CircleShape(
+            /*lastCollision(new CircleShape(
                     last->pointer(),
                     last,
                     1
-            )), // last collision member
+            ))*/ // last collision member
             Behavior(rope)
     {
         this->rope = rope;

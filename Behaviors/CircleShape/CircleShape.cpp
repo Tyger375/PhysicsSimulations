@@ -1,25 +1,8 @@
 #include "CircleShape.h"
 
-bool CircleShape::collidingWithRectangle(CollisionShape& m)
+Colliding CircleShape::collidingWithRectangle(CollisionShape& m)
 {
-    //This object
-    auto radius = bounds.getRadius();
-    //Other object
-    auto size = m.getSize();
-    auto pos = (Vector2)m.getBounds()->getPosition() - (size / 2.f);
-
-    //Works with every convex shape
-
-    float closestDistance = radius * 2;
-    for (int i = 0; i < bounds.getPointCount(); i++)
-    {
-        auto p = Vector2(bounds.getPoint(i));
-        auto d = (pos - p).magnitude();
-        if (d < closestDistance)
-            closestDistance = d;
-    }
-
-    return closestDistance <= radius;
+    return getCollisionRectangleAndCircle(m, *this);
 }
 
 bool CircleShape::aabbCollision(CollisionShape& m)
@@ -28,20 +11,18 @@ bool CircleShape::aabbCollision(CollisionShape& m)
 
     if (type == CIRCLE)
     {
-        return collidingWithCircle(m);
+        return collidingWithCircle(m).collision;
     }
     else if (type == RECTANGLE)
     {
-        return collidingWithRectangle(m);
+        return collidingWithRectangle(m).collision;
     }
     return false;
 }
 
 Colliding CircleShape::satCollision(CollisionShape& m)
 {
-    return Colliding{};
-    //TODO: reimplement
-    /*auto type = m.getType();
+    auto type = m.getType();
 
     if (type == CIRCLE)
         return collidingWithCircle(m);
@@ -50,7 +31,7 @@ Colliding CircleShape::satCollision(CollisionShape& m)
         return collidingWithRectangle(m);
     }
 
-    return false;*/
+    return Colliding{};
 }
 
 void CircleShape::update()
@@ -59,9 +40,18 @@ void CircleShape::update()
     bounds.setPosition(sprite->getPosition());
 }
 
-bool CircleShape::collidingWithCircle(CollisionShape& m)
+Colliding CircleShape::collidingWithCircle(CollisionShape& m)
 {
-    auto distance = Vector2(m.getBounds()->getPosition() - bounds.getPosition());
-    return
-            distance.magnitude() < (m.getSize().magnitude() + bounds.getRadius());
+    auto thisPos = (Vector2)bounds.getPosition();
+    auto thisRadius = bounds.getRadius();
+    auto otherPos = (Vector2)m.getBounds()->getPosition();
+    auto otherRadius = m.getSize().magnitude();
+
+    auto d = (otherPos - thisPos);
+    auto distance = d.magnitude();
+    auto sumRadius = thisRadius + otherRadius;
+
+    auto overlap = std::max(sumRadius - distance, 0.);
+
+    return {distance < sumRadius, overlap, overlap, d.normalize(), {thisPos + d.normalize() * thisRadius, Vector2(), 1}};
 }

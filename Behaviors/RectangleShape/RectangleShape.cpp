@@ -1,24 +1,8 @@
 #include "RectangleShape.h"
 
-bool RectangleShape::collidingWithCircle(CollisionShape& circle)
+Colliding RectangleShape::collidingWithCircle(CollisionShape& circle)
 {
-    //This object
-    auto size = (Vector2)bounds.getSize();
-    auto pos = (Vector2)bounds.getPosition() - (size / 2.f);
-
-    //Works with every convex shape
-    auto radius = circle.getSize().magnitude();
-
-    double closestDistance = radius * 2;
-    for (int i = 0; i < bounds.getPointCount(); i++)
-    {
-        auto p = Vector2(bounds.getPoint(i));
-        auto d = (pos - p).magnitude();
-        if (d < closestDistance)
-            closestDistance = d;
-    }
-
-    return closestDistance <= radius;
+    return getCollisionRectangleAndCircle(*this, circle);
 }
 
 bool RectangleShape::aabbCollision(CollisionShape& m)
@@ -27,7 +11,7 @@ bool RectangleShape::aabbCollision(CollisionShape& m)
 
     if (type == CIRCLE)
     {
-        return collidingWithCircle(m);
+        return collidingWithCircle(m).collision;
     }
     else if (type == RECTANGLE)
     {
@@ -62,8 +46,7 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
     auto type = m.getType();
 
     if (type == CIRCLE)
-        //return collidingWithCircle(m);
-        return Colliding{}; //TODO: reimplement collision detection for circles
+        return collidingWithCircle(m);
     else if (type == RECTANGLE)
     {
         auto *s = &this->bounds;

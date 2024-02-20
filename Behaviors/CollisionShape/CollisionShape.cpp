@@ -1,6 +1,71 @@
 #include "CollisionShape.h"
 #include "Detection.cuh"
 
+Colliding CollisionShape::getCollisionRectangleAndCircle(CollisionShape& rectangle, CollisionShape& circle)
+{
+    Colliding colliding;
+
+    //This object
+    auto bounds = (sf::CircleShape*)circle.getBounds();
+    auto radius = bounds->getRadius();
+
+    //Works with every convex shape
+
+    auto other = (sf::RectangleShape*)rectangle.getBounds();
+    auto vLength = other->getPointCount();
+
+    auto leastC = ContactPoint{(float)INT_MAX, Vector2()};
+
+    auto vertices = getGlobalVertices(*other);
+    auto center = (Vector2)bounds->getPosition();
+
+    double leastDistanceVertex = INT_MAX;
+    Vector2 leastVertex;
+
+    for (int i = 0; i < vLength; ++i)
+    {
+        auto vA = (Vector2)vertices[i];
+        auto vB = (Vector2)vertices[(i + 1) % vLength];
+
+        auto vDist = (vA - center).magnitude();
+
+        if (vDist < leastDistanceVertex) {
+            leastDistanceVertex = vDist;
+            leastVertex = vA;
+        }
+
+        auto c = math::dist(center, vA, vB);
+
+        if (c.contains && c.dist < leastC.dist)
+            leastC = c;
+    }
+    CollidingPoints points;
+    if (leastC.contains && leastC.dist <= radius) {
+        colliding.collision = true;
+        colliding.normal = (leastC.point - center).normalize() * -1;
+        auto overlap = std::max(radius - leastC.dist, 0.f);
+        colliding.overlap = overlap;
+        colliding.penetration = overlap;
+        points.contactCount = 1;
+        points.pointA = leastC.point;
+    } else if (leastDistanceVertex <= radius) {
+        colliding.collision = true;
+        colliding.normal = (leastVertex - center).normalize() * -1;
+
+        auto overlap = std::max(radius - leastDistanceVertex, 0.);
+        colliding.overlap = overlap;
+        colliding.penetration = overlap;
+        points.contactCount = 1;
+        points.pointA = leastVertex;
+    }
+
+    colliding.collidingPoints = points;
+
+    free(vertices);
+
+    return colliding;
+}
+
 Colliding CollisionShape::getCollision(Vector2* axes, unsigned int length, const sf::Shape& first, const sf::Shape& second)
 {
     double leastOverlap = INT16_MAX;

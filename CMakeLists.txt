@@ -51,6 +51,9 @@ add_library(
         Utils.h
         Entity/Entity.cpp
         Vectors/Vector3.h
+        Behaviors/Mesh/Mesh.cpp
+        Behaviors/Mesh/Mesh.h
+        Simulations/Circles.h
 )
 
 set_target_properties(Main PROPERTIES
@@ -75,6 +78,12 @@ add_executable(TestCuda main.cpp)
 target_link_libraries(TestCuda Main)
 target_compile_definitions(TestCuda PUBLIC
         SIMULATION=1
+)
+
+add_executable(Circles main.cpp)
+target_link_libraries(Circles Main)
+target_compile_definitions(Circles PUBLIC
+        SIMULATION=4
 )
 
 if(${USE_CUDA})

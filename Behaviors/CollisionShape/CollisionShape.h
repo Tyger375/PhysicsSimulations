@@ -13,7 +13,7 @@ enum ShapeType
 struct CollidingPoints {
     Vector2 pointA;
     Vector2 pointB;
-    int contactCount{};
+    int contactCount = 0;
 };
 
 struct Colliding {
@@ -49,6 +49,8 @@ protected:
     );
 
     static CollidingPoints findContactPoints(sf::Shape* boundsA, sf::Shape* boundsB);
+
+    static Colliding getCollisionRectangleAndCircle(CollisionShape& rectangle, CollisionShape& circle);
 public:
     CollisionShape(sf::Shape* obj, Entity* parent) :
             Behavior(parent)

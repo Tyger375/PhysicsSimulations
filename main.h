@@ -57,6 +57,8 @@ namespace math
         auto edge = end - start;
         auto pointDir = p - start;
         auto proj = pointDir.dot(edge);
+        proj = std::round(proj / 10.f) * 10.f;
+        //std::cout << proj << " " << edge.dot(edge) << "\n";
         auto contains = proj >= 0 && proj <= edge.dot(edge);
 
         double a, b, c;

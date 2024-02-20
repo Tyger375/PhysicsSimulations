@@ -2,17 +2,18 @@
 #define PHYSICSSIMULATIONS_RECTANGLESHAPE_H
 
 #include "../CollisionShape/CollisionShape.h"
+#include "../Mesh/Mesh.h"
 
 class RectangleShape : public CollisionShape
 {
 private:
     sf::RectangleShape bounds;
 
-    bool collidingWithCircle(CollisionShape& circle);
+    Colliding collidingWithCircle(CollisionShape& circle);
 public:
-    RectangleShape(sf::Shape *obj, Entity* parent, Vector2 size) : CollisionShape(obj, parent) {
+    RectangleShape(Mesh *obj, Vector2 size) : CollisionShape(obj->shape, nullptr) {
         bounds.setSize((sf::Vector2f) size);
-        bounds.setOrigin(sf::Vector2f(size.x/2, size.y/2));
+        //bounds.setOrigin(sf::Vector2f(size.x/2, size.y/2));
         bounds.setFillColor(sf::Color(255, 255, 255, 100));
     }
 

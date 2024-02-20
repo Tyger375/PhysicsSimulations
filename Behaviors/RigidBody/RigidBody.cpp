@@ -94,11 +94,11 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             directionsA[i] = dA;
             directionsB[i] = dB;
 
-            auto angularLinearVelocityA = orthogonalA * rb->angularVelocity;
-            auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
+            auto angularLinearVelocityA = orthogonalA * rb->oldAngular;
+            auto angularLinearVelocityB = orthogonalB * rb2->oldAngular;
 
             // Calculate relative velocity
-            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
+            Vector2 rv = (rb2->oldVelocity + angularLinearVelocityB) - (rb->oldVelocity + angularLinearVelocityA);
             // Calculate relative velocity in terms of the normal direction
             double velAlongNormal = rv.dot(normal);
 
@@ -121,6 +121,12 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             impulses[i] = impulse;
         }
 
+        Vector2 newVel1;
+        Vector2 newVel2;
+
+        double newAng1;
+        double newAng2;
+
         // applying impulses
         for (int i = 0; i < contactCount; i++) {
             auto impulse = impulses[i];
@@ -128,20 +134,35 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             auto dB = directionsB[i];
 
             rb->velocity -= impulse * inv_mass1;
+            newVel1 = rb->velocity;
             rb->angularVelocity -= dA.cross(impulse).z * inv_inertia1;
+            newAng1 = rb->angularVelocity;
 
             rb2->velocity += impulse * inv_mass2;
+            newVel2 = rb2->velocity;
             rb2->angularVelocity += dB.cross(impulse).z * inv_inertia2;
+            newAng2 = rb2->angularVelocity;
         }
 
         const double percent = 0.2; // usually 20% to 80%
 
         const double slop = 0.01; // usually 0.01 to 0.1
 
-        Vector2 correction = std::max(c.penetration - slop, 0. ) / (inv_mass1 + inv_mass2) * percent * c.normal;
+        Vector2 correction = std::max(c.penetration - slop, 0.) / (inv_mass1 + inv_mass2) * percent * c.normal;
 
         rb->parent->setPosition(rb->parent->getPosition() - (sf::Vector2f)(inv_mass1 * correction));
         rb2->parent->setPosition(rb2->parent->getPosition() + (sf::Vector2f)(inv_mass2 * correction));
+
+        if (std::abs(rb->angularVelocity) < 0.05)
+        {
+            rb->angularVelocity = 0;
+            newAng1 = 0;
+        }
+        if (std::abs(rb2->angularVelocity) < 0.05)
+        {
+            rb2->angularVelocity = 0;
+            newAng2 = 0;
+        }
 
         // calculating friction
         // calculating impulses
@@ -152,16 +173,22 @@ void RigidBody::checkCollisions(Vector2 newPosition) {
             auto orthogonalA = dA.orthogonal();
             auto orthogonalB = dB.orthogonal();
 
-            auto angularLinearVelocityA = orthogonalA * rb->angularVelocity;
-            auto angularLinearVelocityB = orthogonalB * rb2->angularVelocity;
+            auto angularLinearVelocityA = orthogonalA * newAng1;
+            auto angularLinearVelocityB = orthogonalB * newAng2;
 
             // Calculate relative velocity
-            Vector2 rv = (rb2->velocity + angularLinearVelocityB) - (rb->velocity + angularLinearVelocityA);
+            Vector2 rv = (newVel2 + angularLinearVelocityB) - (newVel1 + angularLinearVelocityA);
 
-            Vector2 tang = rv - rv.dot(normal) * normal;
+            Vector2 tang = rv - (rv.dot(normal) * normal);
 
-            if (tang == Vector2())
+            const float amount = 0.0005;
+            auto t = std::pow(tang.magnitude(), 2.f);
+            auto s = std::pow(amount, 2.f);
+            if (t < s)
+            {
+                impulses[i] = Vector2();
                 continue;
+            }
 
             tang = tang.normalize();
 

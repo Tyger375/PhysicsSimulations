@@ -33,6 +33,9 @@ protected:
     CollisionDetection cdType;
     const float staticFriction = 0.6f; //Friction coefficient
     const float dynamicFriction = 0.4f;
+
+    Vector2 oldVelocity;
+    double oldAngular;
 public:
     double mass{};
     double inv_mass{};
@@ -115,6 +118,9 @@ public:
             //Adding gravity
             this->velocity -= .5f * Vector2(0, PhysicsLaws::GravityAcceleration) * deltaTime;
         }
+
+        oldVelocity = this->velocity;
+        oldAngular = this->angularVelocity;
     }
 
     void update() override;
@@ -155,10 +161,6 @@ public:
             Debug::drawLine(window, member);
         }
 
-        if (!debugLines.empty())
-        {
-            std::cout << "";
-        }
         debugLines.clear();
         debugPoints.clear();
     }
