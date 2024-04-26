@@ -15,17 +15,11 @@ public:
     CollisionShape* shape;
     RigidBody rb;
 
-    Object(Mesh mesh, CollisionShape* collisionShape)
-        : mesh(mesh),
-          shape(collisionShape),
-          rb(mesh.shape, this, shape, CONTINUOUS)
-    {
-        this->mesh.entity = this;
-        this->shape->entity = this;
-        AddBehavior(&this->mesh);
-        AddBehavior(shape);
-        AddBehavior(&rb);
-    }
+    Object(const Mesh& mesh, CollisionShape* collisionShape);
+
+    explicit Object(Vector2 size);
+
+    Object();
 
     inline void setPosition(Vector2 pos) const
     {
@@ -39,24 +33,13 @@ public:
         shape->update();
     }
 
-    inline void update() override
-    {
+    inline void update() override {}
 
-    }
+    void beforeFixedUpdate() override;
 
-    inline void beforeFixedUpdate() override {
-        rb.updateVars();
-    }
+    void checkCollisions() override;
 
-    inline void checkCollisions() override {
-        rb.checkCollisions((Vector2)this->mesh.shape->getPosition());
-    }
-
-    inline void fixedUpdate() override
-    {
-        rb.update();
-        shape->update();
-    }
+    void fixedUpdate() override;
 
     void render(sf::RenderWindow* window) override;
 

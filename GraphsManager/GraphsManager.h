@@ -30,33 +30,16 @@ private:
     TApplication rootApp;
     std::unique_ptr<TCanvas> canvas;
 
-    static Option_t* getGraphMode(GraphMode m) {
-        Option_t* t = "AP";
-        switch (m) {
-            case WITH_LINES:
-                t = "APL";
-                break;
-            case DEFAULT:
-                t = "AP";
-                break;
-        }
-        return t;
-    }
+    static Option_t* getGraphMode(GraphMode m);
 public:
     inline GraphsManager() :
         rootApp("Graphs", nullptr, nullptr),
         canvas(std::make_unique<TCanvas>("canvas", "Physics simulations"))
     {}
 
-    inline void setCanvasSize(sf::Vector2i size)
-    {
-        canvas->SetWindowSize(size.x, size.y);
-    }
+    void setCanvasSize(sf::Vector2i size);
 
-    inline void setCanvasPosition(sf::Vector2i pos)
-    {
-        canvas->SetWindowPosition(pos.x, pos.y);
-    }
+    void setCanvasPosition(sf::Vector2i pos);
 
     /**
      * Add a graph to the canvas
@@ -72,10 +55,7 @@ public:
 
     void build();
 
-    inline void addPoint(int i, double x, double y)
-    {
-        graphs[i]->graph->AddPoint(x, y);
-    }
+    void addPoint(int i, double x, double y);
 
     void render();
 };

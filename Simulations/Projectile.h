@@ -10,9 +10,7 @@ using namespace Simulations;
 class ProjectileSimulation : public Simulation {
 private:
     Vector2 size = Vector2(50, 50);
-    Mesh playerMesh = Mesh::RectangleMesh(size, sf::Color::Red);
-    RectangleShape playerShape = RectangleShape(&playerMesh, size);
-    Object player = Object(playerMesh, &playerShape);
+    Object player = Object();
 
     Vector2 boxSize = size + Vector2(50, 0);
     Mesh boxMesh = Mesh::RectangleMesh(size, sf::Color::Magenta);

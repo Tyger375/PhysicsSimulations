@@ -35,7 +35,7 @@ protected:
     const float dynamicFriction = 0.4f;
 
     Vector2 oldVelocity;
-    double oldAngular;
+    double oldAngular{};
 public:
     double mass{};
     double inv_mass{};

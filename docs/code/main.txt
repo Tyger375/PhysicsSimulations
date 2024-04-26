@@ -4,6 +4,8 @@ function main() {
 
     auto simulation = new Simulation();
 
+    simulation.onCreate();
+
     while (true) {
         simulation.onUpdate();
 
@@ -21,6 +23,7 @@ function main() {
             entity.fixedUpdate();
         }
 
+        // we can start drawing graphs
         simulation.onDrawGraphs();
 
         // calculations are done, now let's draw everything

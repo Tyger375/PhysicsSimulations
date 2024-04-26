@@ -1,4 +1,4 @@
-function checkDiscrete(final_position, other_obj) {
+bool checkDiscrete(final_position, other_obj) {
     this.setPosition(final_position);
     return checkSAT(this, other_obj); // AABB works as well
 }

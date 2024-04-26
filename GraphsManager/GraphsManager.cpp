@@ -1,5 +1,30 @@
 #include "GraphsManager.h"
 
+Option_t *GraphsManager::getGraphMode(GraphMode m) {
+    Option_t* t = "AP";
+    switch (m) {
+        case WITH_LINES:
+            t = "APL";
+            break;
+        case DEFAULT:
+            t = "AP";
+            break;
+    }
+    return t;
+}
+
+void GraphsManager::setCanvasSize(sf::Vector2i size) {
+    canvas->SetWindowSize(size.x, size.y);
+}
+
+void GraphsManager::setCanvasPosition(sf::Vector2i pos) {
+    canvas->SetWindowPosition(pos.x, pos.y);
+}
+
+void GraphsManager::addPoint(int i, double x, double y) {
+    graphs[i]->graph->AddPoint(x, y);
+}
+
 void GraphsManager::addGraph(const char* title, graph_modifier func, GraphMode mode) {
     auto graph = std::make_unique<TGraph>(1024);
     graph->SetTitle(title);

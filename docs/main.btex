@@ -13,9 +13,10 @@
         @LARGE\ Abstract
     }
     
-    One of the subjects I'm more interested in high school, is 100$$percent$$ physics,
-    we started with the concept of linear motion, then proceeding with things more "complex" and inarguably more interesting.
-    Thus, I decided to start developing physics simulations, to challenge myself and see how many things I learn at school I can implement here.
+    One of the subjects I am more interested in high school is without a doubt physics.
+    We started with the concept of linear motion, then proceeding with things more "complex" and inarguably more interesting.\\
+    Since doing just some exercises for school test is not really that interesting,
+    I decided to start developing physics simulations, to challenge myself and see how many things I learn at school I can implement here.
 
     @newpage\
     @tableofcontents\
@@ -25,13 +26,12 @@
     @section (label=sec:introduction) Introduction\
 
     These simulations will just be focusing 2D.\\
-    I chose to develop this using the C++ programming language and the graphics library
-    @href https://www.sfml-dev.org/ SFML\, attempting to implement by myself everything I need (collision detection, vectors etc.).
-    C++ offers a very good standard library to start from as well as low level and memory management, these tools
-    will be very useful for the simulations to run fast.\\
+    I chose to develop this using the C++ programming language and the graphics library @href https://www.sfml-dev.org/ SFML\,
+    a useful library that provides graphics-related implementations and allows us to focus only on the physics and how what we render on the screen will behave, 
+    thus attempting to implement by myself everything I need related to the subject (collision detection, motion, friction etc.).\\
+    C++ offers a very good standard library to start from as well as low level and memory management, these tools will be very useful for the simulations to run fast, but at the same time it means more hard and challenging code to write.\\
     I will also be using a library for rendering real time plots of our simulations, which can help us to analyze data while the program is running.
-    The library I am talking about is
-    @href https://root.cern/ ROOT\,
+    The library I am talking about is @href https://root.cern/ ROOT\,
     a powerful open-source data analysis framework coming from the CERN.
 
     @newpage\
@@ -42,10 +42,14 @@
     I would like to follow the idea of how the
     @href https://unity.com/ Unity engine\ $$fs$$ works.
     The idea I have in mind is not only to create this physics engine, but I also want to build an API from which people can extend and experiment the engine.
-    So the idea is to give people the tools to create something and learn, pretty much like the SFML library that I will be using.\\
-    Now, let's define some basic things the engine will have:
+    So the plan is to give people the tools to create something and learn, without having to start from scratch again, pretty much like the SFML library.\\
+    A good way to start is having in mind what things we need and how to structure the whole project, let's define some of the basic stuff that the engine will have:
 
     @list {
+        @item {
+            Simulation class\\
+            The main class that handles entities and everything that is needed for our simulations
+        }
         @item {
             Entities\\
             The basic class that let us instantiate things
@@ -59,43 +63,64 @@
             The ones that give some abilities and properties to our entities
         }
         @item {
-            Simulation class\\
-            The main class that handles entities and everything that is needed for our simulations
-        }
-        @item {
             Graphs manager\\
             The class that helps us plotting data
         }
     }
 
+    @figure (H) {
+        @graphic (width=1$$textwidth$$) StructureGraph\
+        @centering\
+        @label fig:enginestructure\
+    }
+
     @newpage\
 
-    We will take for granted adding vectors, which is just implementing every operator.\\
+    We will take for granted adding vectors, which is just implementing every operator (sum, subtraction, dot product etc.).\\
     Now we are going to look at the main function that runs a simple (and empty for now) simulation, let's write it with pseudo-code for simplicity.
 
     @code (language=C++, label=lst:main.cpp) ./code/main.txt\
 
     \\
     This is a very simplified version of what we are doing every frame, I will discuss later about the choice of this approach.
-
-    @newpage\
+    In the very first section of the main function, we are declaring the principal variables: the window (an SFML class for rendering meshes), the graphsManager (the class for plotting graphs) and the simulation (what will handle everything, from image above @ref fig:enginestructure\). They will be discussed better later.
+    Also before the while loop we prepare the simulation with the simulation::onCreate function.\\
+    Next, we are launching the simulation forever until the program is stopped.\\
+    In the loop, we:
+    @list {
+        @item {
+            First tell the simulation that a new frame is starting (simulation::onUpdate).
+        }
+        @item {
+            Update the entities (discussed in @ref sec:entity\).
+        }
+        @item {
+            Plot our custom graphs (simulation::onDrawGraphs)
+        }
+        @item {
+            Render everything on the screen and inform the simulation we have drawn everything (simulation::onRender).
+        }
+    }
 
     @section (label=sec:simulation) Simulation\
 
     As I said above, I would like to build a usable API out of this engine.\\
-    To make this, I created the Simulation class:
+    To make this, I created the Simulation class, which can be extended with your code:
 
     @code (language=C++, label=lst:simulation.cpp) ./code/simulation.txt\
 
     For this paper we will focus on the event functions you can see above.
 
     @subsection (label=subsec:oncreate) onCreate\
+    Event called at the very beginning of the program, before starting to build the first frame. It is usually used to create and spawn the entities used in the simulation.
     @subsection (label=subsec:onevent) onEvent\
+    Event called when a key is pressed.
     @subsection (label=subsec:onupdate) onUpdate\
+    Event called when the program is starting to build each frame.
     @subsection (label=subsec:ondrawgraphs) onDrawGraphs\
+    Event called for plotting some data.
     @subsection (label=subsec:onrender) onRender\
-
-    @newpage\
+    Event called after the frame has been fully drawn, it can be used to add additional things on the screen, like a text.
 
     @section (label=sec:entity) Entity\
 
@@ -108,8 +133,13 @@
 
     @subsection (label=subsec:update-vs-fixed-update) update vs fixed update\
 
+    @figure (H) {
+        @graphic (width=1$$textwidth$$) UpdatevsFixedUpdate\
+        @centering\
+        @label fig:enginestructure\
+    }
     Basically, update runs once per frame.
-    fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is.\\
+    fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is. The last one ends up being more relatable because even if the program starts slowing down for a frame, the fixed update loops will always be stable.\\
     For this reason fixed update should be used when applying physics-related functions, because you know it will be executed exactly in sync with the physics engine itself.\\
     Meanwhile, update can vary out of step with the physics engine depending on how much it takes to render the frame.
     If it was used for physics, it would give different results every time!
@@ -146,6 +176,13 @@
 
     @subsection (label=subsec:object) Object\
 
+    The object class is a built-in structure offered by the engine.\\
+    It already has a mesh sprite, a collision shape and a rigidbody.
+
+    @code (language=C++, label=lst:object) ./code/object.txt\
+
+    Notice the class have a Mesh property and a CollisionShape one. This means a single object can have a sprite rendered on the screen different from the collision shape.
+
     @newpage\
 
     @section (label=sec:behavior) Behavior\
@@ -155,8 +192,8 @@
 
     @code (language=C++, label=lst:behavior.cpp) ./code/behavior.txt\
 
-    Behaviors can be added to entities using the **AddBehavior()** function and can be retrieved with the
-    **TryGetBehavior()** function
+    I wanted to use the same approach used by unity, so behaviors can be added to entities using the **AddBehavior()** function, where the new value is stored in an array of Behavior pointers, and can be retrieved with the
+    **TryGetBehavior()** function. (see @ref sec:entity\)
     
     @newpage\
 
@@ -237,7 +274,9 @@
         @label fig:continuous\
     }
 
-    Continuous collision detection checks every position between start and end position, so that the computer knows the exact position where two object are colliding.
+    Continuous collision detection tries to check for every position between start and end, so that we know the exact position where two object are colliding.\\
+
+    @code (language=C++, label=lst:continuous) ./code/continuous.txt\
 
     @paragraph Pros and Cons\
 
@@ -282,8 +321,179 @@
     **Note:** velocity can be assigned from its variable or can be updated using the **addForce()** function.\\
     Velocity is updated on fixed update, this also includes gravity.
 
+    @subsubsection Collision response\
+
+    The last thing (but not the least important) the rigidbody does for us is collision response. What happens the an object collides with another object?\\
+    This is what the **checkCollisions** function does, it checks for collisions and applies impulses to separate these objects.\\
+    \\
+    Summing up, therefore, we apply:
+
+    @list {
+        @item {
+            traslational impulses
+        }
+        @item {
+            rotational impulses
+        }
+        @item {
+            friction
+        }
+    }
+
+    For this we will obviously assume we have detected that two objects are colliding and we have all the information we need, summed up with these structures:
+
+    @code (language=C++, label=lst:collidingstruct) ./code/colliding.txt\
+
+    I will talk about how we can retrieve this information in @ref subsec:collisionshape\.
+    @paragraph Traslational impulses\\
+    Assuming that there is no friction, the impulse we will generate will be entirely in the normal direction.
+    This impulse will be only calculated if the two objects are trying to overlap, we check this calculating the relative velocity along the normal:
+    @math {
+        v^{AB} = (v^{AP} - v^{BP}) $$dot$$ n
+    }
+    Where *A* and *B* are the two objects, *P* is the point of contact and *n* is the normal of the collision.
+    If the dot product is greater than 0, that means the velocities are already making the objects go away from each other, so we do not need to calculate the impulse.\\
+    We can express the impulse with a scalar *j* times the normal of the collision.
+    Newton's Third Law of equal and opposite forces says that the
+    impulse for A is *j***n**, while the impulse felt by B is simply -*j***n**,
+    the same and opposite impulse.\\
+
+    The formula for calculating *j* is the following:
+    @math {
+        j = @frac {
+            {
+                -(1 + e) v^{AB}
+            }
+            {
+                n $$dot$$ n (
+                    @frac {
+                        {
+                            1
+                        }
+                        {
+                            m^A
+                        }
+                    }
+                    +
+                    @frac {
+                        {
+                            1
+                        }
+                        {
+                            m^B
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    *e* is our restitution value, it is a number clamped between 0 and 1, where 0 is when two objects just crash, and 1 is when they bounce.
+    How can we decide what value we have to pick?
+    This restitution value is based on the material of the object, so every object will have its own variable. When resolving a collision we will just get the least value between the twos.
+    \\
+    *m@superscript A\* and *m@superscript B\* are the masses of the two objects, notice how in this equation we need the inverse of the mass.
+    That brings us to a consideration I actually discovered while doing my researches and that many physics engines did. How can we simulate big masses like the Earth?\\
+    We could just put a big floating number like $2@superscript 31\- 1$, but with floating numbers imprecisions, that would not turn up to be perfect.
+    So people came up with this idea, giving a mass of 0, so that every impulse or force applied, will be multiplied by 0, resulting to no impulse at all.
+    The last problem to solve is the inverse of the mass, 1 over 0 will result in an error.\\
+    Physics engine figured out they could just save two variables for each rigidbody, the mass and the inverse of the mass, adjusting these values manually for masses of 0, so assigning zero to both variables.\\
+    \\
+    Now that we know *j*, we can just update the velocities:
+
+    @math {
+        v^A_f = v^A_i + @frac {{j}{m^A}} @latex {\textbf{n}\}
+    }
+    @math {
+        v^B_f = v^B_i + @frac {{j}{m^B}} @latex {\textbf{n}\}
+    }
+
+    @paragraph Adding rotations\\
+
+    Looking at how we can add rotations too, it really looks very similar to the previous equations.
+    The same way we are calculating linear impulses that will change the velocities,
+    for rotations, we will need to calculate angular impulses that will change the angular velocities.\\
+
+    First, we will have to change the equation for the relative velocity, since we will need to also include the initial angular velocities.
+
+    @math {
+        v^{AB} = ((v^{AP} + v_a^B) - (v^{BP} + v_a^A)) $$dot$$ n
+    }
+
+    Having:
+    @equations {
+        v_a^A & = r_$$perp$$^{AP} \\
+        v_a^B & = r_$$perp$$^{BP}
+    }
+    Where the two *r* are the orthogonals of the directions **AP** and **BP**.
+    We then update our expression to calculate *j*:
+
+    @math {
+        j = @frac {
+            {
+                -(1 + e) v^{AB}
+            }
+            {
+                n $$dot$$ n (
+                    @frac {{1}{m^A}}
+                    +
+                    @frac {{1}{m^B}}
+                )
+                + @frac {
+                    {
+                        (r_$$perp$$^{AP} $$dot$$ n)^2
+                    }
+                    {I^B}
+                }
+                + @frac {
+                    {
+                        (r_$$perp$$^{BP} $$dot$$ n)^2
+                    }
+                    {I^B}
+                }
+            }
+        }
+    }
+
+    Where *I@superscript A\* and *I@superscript B\* are the two momentums of inertia.\\
+    These are calculated when the rigidbody is created and a mass is given.
+    Obviously the same as for the mass happens (for the same reason) for the moment of inertia, which means that there are two variables: the intertia and the inverse of the inertia.
+    \\
+    Lastly, as for the velocities, we update the angular velocities:
+
+    @math {
+        @latex {\omega}^A_f = @latex {\omega}^A_i + @frac {
+            {r_$$perp$$^{AP} $$dot$$ jn}
+            {I^A}
+        }
+    }
+    @math {
+        @latex {\omega}^B_f = @latex {\omega}^B_i + @frac {
+            {r_$$perp$$^{BP} $$dot$$ jn}
+            {I^B}
+        }
+    }
+
+    @paragraph Friction\\
+
+    TODO
+
     @newpage\
 
     @subsection (label=subsec:collisionshape) CollisionShape\
+
+    @subsection (label=subsec:mesh) Mesh\
+
+    The Mesh class is a wrapper for SFML's shapes, it represents the sprite that will be rendered on the screen (NOT the collision bounds).
+
+    @code (language=C++, label=lst:mesh) ./code/mesh.txt\
+
+    @newpage\
+
     @section (label=sec:graphsmanager) GraphsManager\
+
+    The GraphsManager is a wrapper for CERN's library: ROOT.
+    It simplifies the process of plotting real-time graphs for analyzing data from the simulation, whether for debugging or not.
+
+    @code (language=C++, label=lst:graphsmanager) ./code/graphsmanager.txt\
 }
