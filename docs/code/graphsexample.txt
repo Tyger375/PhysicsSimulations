@@ -1,0 +1,11 @@
+// inside a class that extends the Simulation structure
+void onCreate() override {
+    // sets the window size
+    graphsManager.setCanvasSize(sf::Vector2i(1550, 700));
+    // sets the window position on the computer
+    graphsManager.setCanvasPosition(sf::Vector2i(-2048, 0));
+
+    // adds a plotting space to the window
+    graphsManager.addGraph("Test");
+    graphsManager.build();
+}

@@ -1,0 +1,13 @@
+struct CollidingPoints {
+    Vector2 pointA;
+    Vector2 pointB;
+    int contactCount = 0;
+};
+
+struct Colliding {
+    bool collision;
+    double penetration;
+    double overlap;
+    Vector2 normal;
+    CollidingPoints collidingPoints;
+};

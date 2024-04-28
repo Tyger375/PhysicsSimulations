@@ -1,0 +1,20 @@
+enum ShapeType
+{
+    CIRCLE, RECTANGLE
+};
+
+class CollisionShape {
+sf::Shape* sprite{};
+    ... // static methods used for SAT collision detection
+public:
+    // abstract methods to implement
+    virtual ShapeType getType() = 0;
+
+    virtual bool aabbCollision(CollisionShape&) = 0;
+
+    virtual Colliding satCollision(CollisionShape&) = 0;
+
+    virtual sf::Shape* getBounds() = 0;
+
+    virtual Vector2 getSize() = 0;
+}

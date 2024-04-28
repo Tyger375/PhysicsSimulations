@@ -50,20 +50,21 @@ Colliding RectangleShape::satCollision(CollisionShape& m)
     else if (type == RECTANGLE)
     {
         auto *s = &this->bounds;
+        auto otherBounds = m.getBounds();
 
         //First shape
         const unsigned int length = s->getPointCount();
         Vector2 *axes = getAxes(this->bounds);
 
         //Second shape
-        const unsigned int length2 = m.getBounds()->getPointCount();
-        Vector2 *axes2 = getAxes(*m.getBounds());
+        const unsigned int length2 = otherBounds->getPointCount();
+        Vector2 *axes2 = getAxes(*otherBounds);
 
         Colliding obj;
-        obj.collidingPoints = findContactPoints(s, m.getBounds());
+        obj.collidingPoints = findContactPoints(s, otherBounds);
 
-        auto c1 = getCollision(axes, length, this->bounds, *m.getBounds());
-        auto c2 = getCollision(axes2, length2, this->bounds, *m.getBounds());
+        auto c1 = getCollision(axes, length, this->bounds, *otherBounds);
+        auto c2 = getCollision(axes2, length2, this->bounds, *otherBounds);
 
         auto colliding = c1.collision && c2.collision;
 

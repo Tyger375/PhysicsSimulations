@@ -1,0 +1,12 @@
+float precision = 0.1f;
+int max = (int)(1 / precision);
+
+for (int i = 0; i <= max; i++) {
+    float j = (float)i / (float)max;
+
+    Vector2 pos = startPos + j * direction;
+
+    if (checkDiscreteCollision(pos)) {
+        return pos; // We now have the precise position
+    }
+}

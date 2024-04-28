@@ -1,0 +1,29 @@
+class GraphsManager {
+private:
+    std::vector<Graph*> graphs;
+    TApplication rootApp;
+    std::unique_ptr<TCanvas> canvas;
+
+    static Option_t* getGraphMode(GraphMode m);
+public:
+    inline GraphsManager() :
+        rootApp("Graphs", nullptr, nullptr),
+        canvas(std::make_unique<TCanvas>("canvas", "Physics simulations"))
+    {}
+
+    void setCanvasSize(sf::Vector2i size);
+
+    void setCanvasPosition(sf::Vector2i pos);
+
+    void addGraph(
+        const char* title,
+        graph_modifier func = [](TGraph* _){},
+        GraphMode mode = GraphMode::DEFAULT
+    );
+
+    void build();
+
+    void addPoint(int i, double x, double y);
+
+    void render();
+};

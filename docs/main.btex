@@ -136,26 +136,25 @@
     @figure (H) {
         @graphic (width=1$$textwidth$$) UpdatevsFixedUpdate\
         @centering\
-        @label fig:enginestructure\
+        @label fig:updatevsfixed\
     }
-    Basically, update runs once per frame.
-    fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is. The last one ends up being more relatable because even if the program starts slowing down for a frame, the fixed update loops will always be stable.\\
+    Basically, update runs once per frame, while fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is. The last one ends up being more relatable because even if the program starts slowing down for a frame, the fixed update loops will always be stable. As you can see in image @ref fig:updatevsfixed\ fixed update runs at fixed and equal intervals, unlike update.\\
     For this reason fixed update should be used when applying physics-related functions, because you know it will be executed exactly in sync with the physics engine itself.\\
     Meanwhile, update can vary out of step with the physics engine depending on how much it takes to render the frame.
     If it was used for physics, it would give different results every time!
 
     @subsection (label=subsec:update) update\
 
-    For this reason, since update is not recommended for physics functions, the function is not used, but I wanted to add it for completeness.
+    For the reason explained above, since update is not recommended for physics functions, the method is not used, but I wanted to add it for completeness.
 
     @subsection (label=subsec:fixed-update) fixed update\
 
-    Unlike update, fixed update is very used since everything here is related to physics.
+    Instead, fixed update is very used since everything here is related to physics.
     I decided to break this out and differentiate the fixed update process into 3 phases:
 
     @subsubsection beforeFixedUpdate\
 
-    This function is the first called, and it is used to update variables like the velocity.\\
+    This method is the first called, and it is used to update variables like the velocity in the RigidBody behavior.\\
     For example, we make sure gravity is applied to our velocity each time.
 
     @subsubsection checkCollisions\
@@ -181,7 +180,7 @@
 
     @code (language=C++, label=lst:object) ./code/object.txt\
 
-    Notice the class have a Mesh property and a CollisionShape one. This means a single object can have a sprite rendered on the screen different from the collision shape.
+    Notice that the class have a Mesh property and a CollisionShape one. This means a single object can have a sprite rendered on the screen different from the collision shape.
 
     @newpage\
 
@@ -344,7 +343,7 @@
 
     @code (language=C++, label=lst:collidingstruct) ./code/colliding.txt\
 
-    I will talk about how we can retrieve this information in @ref subsec:collisionshape\.
+    I will talk more about this in @ref subsec:collisionshape\.
     @paragraph Traslational impulses\\
     Assuming that there is no friction, the impulse we will generate will be entirely in the normal direction.
     This impulse will be only calculated if the two objects are trying to overlap, we check this calculating the relative velocity along the normal:
@@ -397,7 +396,7 @@
     We could just put a big floating number like $2@superscript 31\- 1$, but with floating numbers imprecisions, that would not turn up to be perfect.
     So people came up with this idea, giving a mass of 0, so that every impulse or force applied, will be multiplied by 0, resulting to no impulse at all.
     The last problem to solve is the inverse of the mass, 1 over 0 will result in an error.\\
-    Physics engine figured out they could just save two variables for each rigidbody, the mass and the inverse of the mass, adjusting these values manually for masses of 0, so assigning zero to both variables.\\
+    Physics engines figured out they could just save two variables for each rigidbody, the mass and the inverse of the mass, adjusting these values manually for masses of 0, so assigning zero to both variables.\\
     \\
     Now that we know *j*, we can just update the velocities:
 
@@ -443,7 +442,7 @@
                     {
                         (r_$$perp$$^{AP} $$dot$$ n)^2
                     }
-                    {I^B}
+                    {I^A}
                 }
                 + @frac {
                     {
@@ -453,6 +452,7 @@
                 }
             }
         }
+        @label eq:jscalar\
     }
 
     Where *I@superscript A\* and *I@superscript B\* are the two momentums of inertia.\\
@@ -476,11 +476,189 @@
 
     @paragraph Friction\\
 
-    TODO
+    If we actually tried to run our simulations now, we would see that the objects spawned keep moving slowly, like they are on an icy surface.
+    That is because we have not implemented friction yet.\\
+    But first, what is friction?\\
+    Friction is the force that is resisting the motion of two objects sliding against each other. For our simulations this force will make our entities stop after some time.
+    Let's see what will be the direction of our friction first.\\
+
+    @figure (H) {
+        @graphic (width=1$$textwidth$$) FrictionDirection\
+        @centering\
+        @label fig:frictiondirection\
+    }
+
+    Here we have a situation where two entities have just collided, let's assume the red circle is a dynamic object (the one that is moving) and the yellow square is a static object like a floor.\\
+    Before hitting the floor, the circle was moving towards it with an initial velocity. After the collision, the direction of the velocity is flipped according to the normal. The friction instead will be tangent to the normal direction and opposite to the final velocity.\\
+    Therefore we calculate the tangent:
+
+    @math {
+        t = v^{AB} - (v^{AB} $$dot$$ n)n
+    }
+
+    *note that the relative velocity v@superscript AB\$$fs$$is the final velocity in the image, that is because friction is calculated after separating the two entities apart*\\
+    Similar to the previous calculations for impulses, we now calculate the *j* scalar for friction:
+
+    @math {
+        jt = - @frac {
+            {
+                v^{AB} $$dot$$ t
+            }
+            {
+                (
+                    @frac {{1}{m^A}}
+                    +
+                    @frac {{1}{m^B}}
+                )
+                + @frac {
+                    {
+                        (r_$$perp$$^{AP} $$dot$$ t)^2
+                    }
+                    {I^A}
+                }
+                + @frac {
+                    {
+                        (r_$$perp$$^{BP} $$dot$$ t)^2
+                    }
+                    {I^B}
+                }
+            }
+        }
+    }
+
+    Very similar to the previous one, except that we are using the tangent instead of the normal.\\
+    *note the minus at the beginning, because the impulse will be opposite to the velocity*\\
+    One last thing we need to do before calculating and applying the final friction impulses is using Coulomb's law that clamps a friction force that is too big.
+    Coulombs's law says that the friction force *F@subscript f\* must be less or equal than the normal force *F@subscript n\* times a static friction constant
+    @math {
+        F_f @latex {\leq} F_n $$dot$$ @latex {\mu}
+    }
+    And with our variables we can rewrite this as:
+    @math {
+        jt @latex {\leq} j $$dot$$ sf @label eq:coulomblaw\
+    }
+    Where *jt* is the scalar we have calculated before and *j* is the scalar calculated back in @latex {\eqref{eq:jscalar}} for the motion impulse.\\
+    That also leads us to declaring two important values: the static friction constant and the dynamic friction constant.
+    In real life, these values really depend on the materials of the two objects.\\
+    In the future, I would like to create a list of some materials with their real constants for better results. However, for now I will just have a custom static and dynamic friction constant for each RigidBody 
+    (RigidBody::staticFriction and RigidBody::dynamicFriction) and just calculate the average.
+
+    @math {
+        sf = @frac {
+            {
+                SF_A + SF_B
+            }
+            {
+                2
+            }
+        }
+    }
+    @math {
+        df = @frac {
+            {
+                DF_A + DF_B
+            }
+            {
+                2
+            }
+        }
+    }
+
+    So if condition @latex { \eqref{eq:coulomblaw} }\ is met, the friction impulse will be
+    @math {
+        i = jt * t
+    }
+    Otherwise, Coulomb's law states that the friction will be
+    @math {
+        i = -j * t * df
+    }
+    Finally, we can add these impulses to the velocities and angular velocities of the two objects, like we did before.
 
     @newpage\
 
     @subsection (label=subsec:collisionshape) CollisionShape\
+
+    The CollisionShape class has the information about the shape for collisions and the algorithms of collision detection.
+    There are different algorithms based on the type of shape we have, that is why the CollisionShape class is abstract and has different implementations.
+
+    @code (language=C++, label=lst:collisionshape) ./code/collisionshape.txt\
+
+    These are the methods to override for extending the class.
+    @list {
+        @item {
+            **getType**\\
+            returns the type of shape (circle or rectangle for now)
+        }
+        @item {
+            **getBounds**\\
+            returns the SFML shape
+        }
+        @item {
+            **getSize**\\
+            returns the size of the shape, needs to be interpreted based on the shape.\\
+            For circles the radius is the length of the vector.\\
+            For rectangles the x and y sizes are just the vector's components
+        }
+        @item {
+            **aabbCollision**\\
+            contains the logic for the AABB algorithm, returns a boolean whether the two objects collide or not.
+        }
+        @item {
+            **satCollision**\\
+            contains the logic for the SAT algorithm, returns a structure containing all the information of the collision.
+        }
+    }
+
+    @subsubsection (label=subsubsec:aabbalgorithm) AABB algorithm\
+
+    @figure (H) {
+        @graphic (width=1$$textwidth$$) AABBAlgorithm\
+        @centering\
+        @label fig:aabbexplanation\
+    }
+    AABB stands for Axis-Aligned Bounding Box.\\
+    This method only works with rectangles or squares and only if they're axis-aligned.\\
+    If two objects are colliding, all of these conditions will be true:
+    @math {
+        @split {
+            other.left      & @latex {\leq} object.right\\
+            other.right     & @latex {\geq} object.left\\
+            other.top       & @latex {\geq} object.bottom\\
+            other.bottom    & @latex {\leq} object.top\\
+        }
+    }
+    *note that this algorithm is implemented in the project but never used, because since we are also dealing with angular velocities and rotations, this method will not work*
+
+    @subsubsection (label=subsubsec:satalgorithm) SAT algorithm\
+
+    @figure (H) {
+        @graphic (width=.65$$textwidth$$) SATAlgorithm\
+        @centering\
+        @label fig:satexplanation\
+    }
+
+    SAT stands for Separating Axis Theorem.\\
+    This is a much better algorithm (but also more expensive) than AABB because it works with **every convex** shape and **every rotation**.\\
+    \\
+    What we basically do is make a projection of both shapes on every axis.
+    If all the projections overlap, the objects are colliding.\\
+    As we saw in @ref lst:collidingstruct\, collision resolution needs some more information rather than just a boolean value that says if a collision happened.
+
+    @code (language=C++, label=lst:collidingstruct) ./code/colliding.txt\
+
+    Penetration is the greatest overlap encountered, while overlap is the least overlap, these values are used to correct the visible bug of two objects being one over the other.
+
+    @figure (H) {
+        @graphic (width=1.05$$textwidth$$) NormalsExplanation\
+        @centering\
+        @label fig:normalsexplanation\
+    }
+    The normal is the normalized direction of the collision.
+
+    @subsubsection (label=subsubsec:circlepolygon) Circle-Polygon algorithm\
+
+    To check if a circle is colliding with a convex polygon, we iterate through every vertex of the polygon and get the least distance between a vertex and the center of the circle.
+    If the least distance is less or equal than the circle's radius, the two objects are colliding.
 
     @subsection (label=subsec:mesh) Mesh\
 
@@ -492,8 +670,13 @@
 
     @section (label=sec:graphsmanager) GraphsManager\
 
-    The GraphsManager is a wrapper for CERN's library: ROOT.
-    It simplifies the process of plotting real-time graphs for analyzing data from the simulation, whether for debugging or not.
+    The GraphsManager is a wrapper for CERN's library: ROOT.\\
+    It simplifies the process of plotting real-time graphs for analyzing data from the simulation, whether for debugging or not.\\
 
     @code (language=C++, label=lst:graphsmanager) ./code/graphsmanager.txt\
+
+    Here's an example of building some graphs\\
+    *note that the simulation class already has a graphManager property*
+
+    @code (language=C++, label=lst:graphsexample) ./code/graphsexample.txt\
 }
