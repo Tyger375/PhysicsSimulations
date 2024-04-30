@@ -138,7 +138,7 @@
         @centering\
         @label fig:updatevsfixed\
     }
-    Basically, update runs once per frame, while fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is. The last one ends up being more relatable because even if the program starts slowing down for a frame, the fixed update loops will always be stable. As you can see in image @ref fig:updatevsfixed\ fixed update runs at fixed and equal intervals, unlike update.\\
+    Basically, update runs once per frame, while fixed-update can run once, zero, or several times per frame, depending on how many physics frames per second are set in the time settings, and how fast/slow the frame rate is. The last one ends up being more relatable because even if the program starts slowing down for a frame, the fixed update loops will always be stable. As you can see in image @ref fig:updatevsfixed\$$fs$$ fixed update runs at fixed and equal intervals, unlike update.\\
     For this reason fixed update should be used when applying physics-related functions, because you know it will be executed exactly in sync with the physics engine itself.\\
     Meanwhile, update can vary out of step with the physics engine depending on how much it takes to render the frame.
     If it was used for physics, it would give different results every time!
@@ -149,7 +149,7 @@
 
     @subsection (label=subsec:fixed-update) fixed update\
 
-    Instead, fixed update is very used since everything here is related to physics.
+    On the other hand, fixed update is very used because everything here is related to physics.
     I decided to break this out and differentiate the fixed update process into 3 phases:
 
     @subsubsection beforeFixedUpdate\
@@ -180,11 +180,11 @@
 
     @code (language=C++, label=lst:object) ./code/object.txt\
 
-    Notice that the class have a Mesh property and a CollisionShape one. This means a single object can have a sprite rendered on the screen different from the collision shape.
+    Notice that the class has a Mesh property and a CollisionShape one. This means a single object can have a sprite rendered on the screen different from the collision shape.
 
     @newpage\
 
-    @section (label=sec:behavior) Behavior\
+    @section (label=sec:behavior) Behaviors\
 
     Behaviors, as I said in the introduction, are the components that give some properties to our entities.
     This is the abstract class for a behavior:
@@ -192,16 +192,17 @@
     @code (language=C++, label=lst:behavior.cpp) ./code/behavior.txt\
 
     I wanted to use the same approach used by unity, so behaviors can be added to entities using the **AddBehavior()** function, where the new value is stored in an array of Behavior pointers, and can be retrieved with the
-    **TryGetBehavior()** function. (see @ref sec:entity\)
+    **TryGetBehavior()** function. (see @ref sec:entity\).\\
+    This means an entity can have as many behaviors as you want, this is very convenient for organizing the simulations, giving each behavior a little task to do.
     
     @newpage\
 
     @subsection (label=subsec:rigidbody) Rigidbody\
 
     The RigidBody component is an implementation of physics for our entities.
-    The two main functions are the followings:
+    What it basically does is checking if an entity is colliding with another one and if so, resolve this collision (which often means separate them).
 
-    @subsubsection Collision Detection\
+    @subsubsection (label=subsubsec:collisiondetection) Collision Detection\
 
     Collision detection is used to check if an object is colliding with another object
     This part will not cover the two collision detection algorithms (aabb/sat).
@@ -246,15 +247,14 @@
         @label fig:tunneling\
     }
 
-    Tunneling is when an object moves so fast from one frame to another that
-    he completely passes another object.
+    Tunneling is when an object moves so fast from one frame to another that he completely passes an obstacle.
 
     @list {
         @item {
             Make sure an object doesn't move too fast
         }
         @item {
-            Increase frames per second
+            Increase frames per second (not always possible)
         }
         @item {
             Continuous collision detection
@@ -276,6 +276,8 @@
     Continuous collision detection tries to check for every position between start and end, so that we know the exact position where two object are colliding.\\
 
     @code (language=C++, label=lst:continuous) ./code/continuous.txt\
+
+    The smaller the precision variable, the better result we get, even though it obviously means higher computation cost.
 
     @paragraph Pros and Cons\
 
@@ -314,6 +316,10 @@
         }
     }
 
+    This method is actually used before using the continuous method for optimization.
+    Before looping through every position, we first check if the obstacle is inside the object's path (as in the figure).
+    If using swept volume, the two objects do not seem to collide, we can skip using continuous collision detection.
+
     @subsubsection Velocity management\
 
     Velocity is used to calculate the next position of an object.\\
@@ -351,7 +357,7 @@
         v^{AB} = (v^{AP} - v^{BP}) $$dot$$ n
     }
     Where *A* and *B* are the two objects, *P* is the point of contact and *n* is the normal of the collision.
-    If the dot product is greater than 0, that means the velocities are already making the objects go away from each other, so we do not need to calculate the impulse.\\
+    If the dot product is greater than 0, that means the velocities are already going into different directions and making the objects go away from each other, so we do not need to calculate the impulse.\\
     We can express the impulse with a scalar *j* times the normal of the collision.
     Newton's Third Law of equal and opposite forces says that the
     impulse for A is *j***n**, while the impulse felt by B is simply -*j***n**,
@@ -387,12 +393,12 @@
         }
     }
 
-    *e* is our restitution value, it is a number clamped between 0 and 1, where 0 is when two objects just crash, and 1 is when they bounce.
+    *e* is our restitution value, it is a number clamped between 0 and 1, where 0 is when two objects just crash, and 1 is when they perfectly bounce.
     How can we decide what value we have to pick?
     This restitution value is based on the material of the object, so every object will have its own variable. When resolving a collision we will just get the least value between the twos.
     \\
-    *m@superscript A\* and *m@superscript B\* are the masses of the two objects, notice how in this equation we need the inverse of the mass.
-    That brings us to a consideration I actually discovered while doing my researches and that many physics engines did. How can we simulate big masses like the Earth?\\
+    *m@superscript A\* and *m@superscript B\* are the masses of the two objects, notice how in this equation we need the inverse of the mass.\\
+    This brings us to a consideration I actually discovered while doing my researches and that many physics engines did. How can we simulate big masses like the Earth?\\
     We could just put a big floating number like $2@superscript 31\- 1$, but with floating numbers imprecisions, that would not turn up to be perfect.
     So people came up with this idea, giving a mass of 0, so that every impulse or force applied, will be multiplied by 0, resulting to no impulse at all.
     The last problem to solve is the inverse of the mass, 1 over 0 will result in an error.\\
@@ -400,11 +406,9 @@
     \\
     Now that we know *j*, we can just update the velocities:
 
-    @math {
-        v^A_f = v^A_i + @frac {{j}{m^A}} @latex {\textbf{n}\}
-    }
-    @math {
-        v^B_f = v^B_i + @frac {{j}{m^B}} @latex {\textbf{n}\}
+    @equations {
+        v^A_f & = v^A_i + @frac {{j}{m^A}} @latex {\textbf{n}\} \\
+        v^B_f & = v^B_i + @frac {{j}{m^B}} @latex {\textbf{n}\}
     }
 
     @paragraph Adding rotations\\
@@ -461,14 +465,12 @@
     \\
     Lastly, as for the velocities, we update the angular velocities:
 
-    @math {
-        @latex {\omega}^A_f = @latex {\omega}^A_i + @frac {
+    @equations {
+        @latex {\omega}^A_f & = @latex {\omega}^A_i + @frac {
             {r_$$perp$$^{AP} $$dot$$ jn}
             {I^A}
-        }
-    }
-    @math {
-        @latex {\omega}^B_f = @latex {\omega}^B_i + @frac {
+        } \\
+        @latex {\omega}^B_f & = @latex {\omega}^B_i + @frac {
             {r_$$perp$$^{BP} $$dot$$ jn}
             {I^B}
         }
@@ -531,11 +533,11 @@
     One last thing we need to do before calculating and applying the final friction impulses is using Coulomb's law that clamps a friction force that is too big.
     Coulombs's law says that the friction force *F@subscript f\* must be less or equal than the normal force *F@subscript n\* times a static friction constant
     @math {
-        F_f @latex {\leq} F_n $$dot$$ @latex {\mu}
+        F_f $$leq$$ F_n $$dot$$ @latex {\mu}
     }
     And with our variables we can rewrite this as:
     @math {
-        jt @latex {\leq} j $$dot$$ sf @label eq:coulomblaw\
+        jt $$leq$$ j $$dot$$ sf @label eq:coulomblaw\
     }
     Where *jt* is the scalar we have calculated before and *j* is the scalar calculated back in @latex {\eqref{eq:jscalar}} for the motion impulse.\\
     That also leads us to declaring two important values: the static friction constant and the dynamic friction constant.
@@ -543,18 +545,16 @@
     In the future, I would like to create a list of some materials with their real constants for better results. However, for now I will just have a custom static and dynamic friction constant for each RigidBody 
     (RigidBody::staticFriction and RigidBody::dynamicFriction) and just calculate the average.
 
-    @math {
-        sf = @frac {
+    @equations {
+        sf & = @frac {
             {
                 SF_A + SF_B
             }
             {
                 2
             }
-        }
-    }
-    @math {
-        df = @frac {
+        } \\
+        df & = @frac {
             {
                 DF_A + DF_B
             }
@@ -609,6 +609,8 @@
         }
     }
 
+    I provided two implementations, CircleShape and RectangleShape. They contain all the logic for every collision case.
+
     @subsubsection (label=subsubsec:aabbalgorithm) AABB algorithm\
 
     @figure (H) {
@@ -619,15 +621,13 @@
     AABB stands for Axis-Aligned Bounding Box.\\
     This method only works with rectangles or squares and only if they're axis-aligned.\\
     If two objects are colliding, all of these conditions will be true:
-    @math {
-        @split {
-            other.left      & @latex {\leq} object.right\\
-            other.right     & @latex {\geq} object.left\\
-            other.top       & @latex {\geq} object.bottom\\
-            other.bottom    & @latex {\leq} object.top\\
-        }
+    @equations {
+        other.left      & $$leq$$ object.right\\
+        other.right     & $$geq$$ object.left\\
+        other.top       & $$geq$$ object.bottom\\
+        other.bottom    & $$leq$$ object.top\\
     }
-    *note that this algorithm is implemented in the project but never used, because since we are also dealing with angular velocities and rotations, this method will not work*
+    *note that this algorithm is implemented in the project but never used. Since we are also dealing with angular velocities and rotations, this method will not work*
 
     @subsubsection (label=subsubsec:satalgorithm) SAT algorithm\
 
@@ -659,6 +659,24 @@
 
     To check if a circle is colliding with a convex polygon, we iterate through every vertex of the polygon and get the least distance between a vertex and the center of the circle.
     If the least distance is less or equal than the circle's radius, the two objects are colliding.
+
+    @subsubsection (label=subsubsec:usingcuda) Experiment: using the GPU to speed up collision detection\
+
+    As we saw in @ref subsubsec:collisiondetection\, continuous collision detection is a very good method for avoiding tunneling, but it is also very expensive if we want to get very precise results (which means making the precision variable smaller).\\
+    Thinking about a way to solve this performance problem, I was wondering, what if we used the GPU instead?\\
+    The GPU is very good at executing **a lot of little tasks in parallel**, which at first I thought was my case. What if we made that for loop for each position between start and end position run in parallel?\\
+    Actually this task would not be the first one to use the GPU in the simulations, in fact SFML uses the graphic card for faster rendering.\\
+    Programming with an NVIDIA GPU requires using CUDA, a software layer that gives us direct access to the graphics card (obviously made by NVIDIA). CUDA files have the **.cu** prefix for main files and **.cuh** files for header files, this test code is available on the GitHub repository as well, and can be enabled for testing on the simulation using CMAKE, I made a custom profile to run.\\
+    I am not going to cover all the explanations of how GPUs and CUDA work, you can read the @href https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html CUDA C++ Programming Guide\.\\
+    Obviously, to make this work, I needed to rewrite all the structures and functions used to retrieve all the information, which includes re-implementing the SAT algorithm etc.
+    CUDA methods are divided in two types: kernels and normal functions.
+
+    @code (language=C++, label=lst:cudaexample) ./code/cudaexample.txt\
+
+    Kernels (defined using the global annotation) are the functions that can be executed N times in parallel by N different CUDA threads, while devices functions are just normal methods that can be executed by the graphics card.\\
+    \\
+    Unfortunately, using this method did not increase performances, but made the simulations slower. This may be caused because the task each thread has to do is not really small and quick (we have already seen the amount of calculations and information required).
+    As I have already said, this test can be found on the GitHub repository, inside the CollisionShape folder.
 
     @subsection (label=subsec:mesh) Mesh\
 

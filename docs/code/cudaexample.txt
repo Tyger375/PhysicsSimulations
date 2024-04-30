@@ -1,0 +1,9 @@
+__device__ void a_common_function()
+{
+
+}
+
+__global__ void a_kernel_function()
+{
+    
+}
