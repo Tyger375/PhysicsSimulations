@@ -12,6 +12,8 @@ private:
     Rope rope = Rope(Vector2(450, 350), Vector2(590, 350));
     RopeRigidBody ropeRb = RopeRigidBody(&rope);
 public:
+    explicit RopeTestSimulation(GraphsManager* m) : Simulation(m) {}
+
     void onCreate() override {
         graphsManager.addGraph("Graph");
         graphsManager.addGraph("Graph");

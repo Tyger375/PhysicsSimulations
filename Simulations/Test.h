@@ -15,6 +15,7 @@ private:
     RectangleShape playerShape = RectangleShape(&playerMesh, size);
     Object player = Object(playerMesh, &playerShape);
 public:
+    explicit TestSimulation(GraphsManager* m) : Simulation(m) {}
     void onCreate() override {
         graphsManager.setCanvasSize(sf::Vector2i(1550, 700));
         graphsManager.setCanvasPosition(sf::Vector2i(-2048, 0));

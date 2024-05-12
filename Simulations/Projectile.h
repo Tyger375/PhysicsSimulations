@@ -22,15 +22,16 @@ private:
     RectangleShape groundShape = RectangleShape(&groundMesh, ground2Size);
     Object ground = Object(groundMesh, &groundShape);
 public:
+    explicit ProjectileSimulation(GraphsManager* m) : Simulation(m) {}
+
     void onCreate() override {
         //Graphs
-        graphsManager.addGraph("Graph", [](TGraph* _){}, GraphMode::WITH_LINES);
-        graphsManager.addGraph("Graph", [](TGraph* _){}, GraphMode::WITH_LINES);
-        graphsManager.build();
+        graphsManager->addGraph("Graph", [](TGraph* _){}, GraphMode::WITH_LINES);
+        graphsManager->build();
 
         player.rb.useGravity = true;
         player.rb.setDensity(10);
-        player.setPosition(Vector2(80, 350));
+        player.setPosition(Vector2(70, 250));
         //player.setRotation(10);
         //player.rb.addForce(Vectors(100.f, -50.f * 0.f));
 
@@ -61,8 +62,7 @@ public:
         //player.rb.debug(window);
     }
     void onDrawGraphs() override {
-        //graphsManager.addPoint(1, time, player.rb.velocity.magnitude());
-        //graphsManager.addPoint(0, time, player.rb.angularVelocity);
+        graphsManager->addPoint(0, time, player.rb.velocity.magnitude());
     }
 };
 

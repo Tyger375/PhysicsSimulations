@@ -1,7 +1,7 @@
 class Simulation {
 public:
     double time = 0.f; // run time
-    GraphsManager graphsManager;
+    GraphsManager* graphsManager;
     bool start;
     bool paused;
 
@@ -10,7 +10,7 @@ public:
     sf::Clock clock;
     sf::Time elapsedTime;
 
-    Simulation() : start(false), paused(false) {}
+    explicit Simulation(GraphsManager* manager) : graphsManager(manager), start(false), paused(false) {}
 
     // the events are fired from the main loop
     virtual void onCreate() {}

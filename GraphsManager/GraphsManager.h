@@ -58,6 +58,8 @@ public:
     void addPoint(int i, double x, double y);
 
     void render();
+
+    void reset();
 };
 
 

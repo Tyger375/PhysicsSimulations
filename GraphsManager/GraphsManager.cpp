@@ -62,3 +62,8 @@ void GraphsManager::render() {
         canvas->Pad()->Draw();
     }
 }
+
+void GraphsManager::reset()  {
+    canvas->Clear();
+    graphs.clear();
+}

@@ -7,7 +7,7 @@ namespace Simulations {
     class Simulation {
     public:
         double time = 0.f;
-        GraphsManager graphsManager;
+        GraphsManager* graphsManager;
         bool start;
         bool paused;
 
@@ -16,7 +16,8 @@ namespace Simulations {
         sf::Clock clock;
         sf::Time elapsedTime;
 
-        Simulation() :
+        explicit Simulation(GraphsManager* manager) :
+                graphsManager(manager),
                 start(false),
                 paused(false)
         {}

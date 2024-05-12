@@ -1,15 +1,23 @@
 #if SIMULATION == 1
 #include "Simulations/Test.h"
-Simulations::Simulation* simulation = new TestSimulation();
+Simulations::Simulation* createSimulation(GraphsManager* m) {
+    return new TestSimulation(m);
+}
 #elif SIMULATION == 2
 #include "Simulations/RopeTest.h"
-Simulations::Simulation* simulation = new RopeTestSimulation();
+Simulations::Simulation* createSimulation(GraphsManager* m) {
+    return new RopeTestSimulation(m);
+}
 #elif SIMULATION == 3
 #include "Simulations/Projectile.h"
-Simulations::Simulation* simulation = new ProjectileSimulation();
+Simulations::Simulation* createSimulation(GraphsManager* m) {
+    return new ProjectileSimulation(m);
+}
 #elif SIMULATION == 4
 #include "Simulations/Circles.h"
-Simulations::Simulation* simulation = new CirclesSimulation();
+Simulations::Simulation* createSimulation(GraphsManager* m) {
+    return new CirclesSimulation(m);
+}
 #endif
 
 #include <SFML/Window.hpp>
@@ -18,6 +26,8 @@ Simulations::Simulation* simulation = new CirclesSimulation();
 #include "Entity/Entity.h"
 #include "Utils.h"
 
+GraphsManager graphsManager;
+Simulations::Simulation* simulation = createSimulation(&graphsManager);
 double GlobalVars::deltaTime = 0.f;
 double GlobalVars::fixedDeltaTime = 0.f;
 std::vector<Entity*> GlobalVars::entities;
@@ -65,7 +75,9 @@ int main() {
             if (Utils::keyPressed(event, sf::Keyboard::Space))
             {
                 GlobalVars::entities.clear();
-                simulation->start = false;
+                graphsManager.reset();
+                delete simulation;
+                simulation = createSimulation(&graphsManager);
                 simulation->onCreate();
             }
             if (Utils::keyPressed(event, sf::Keyboard::P))
@@ -82,6 +94,7 @@ int main() {
             {
                 simulation->runTimeClock.restart();
                 simulation->start = true;
+                simulation->time = 0;
             }
         }
 
@@ -130,7 +143,7 @@ int main() {
 
         if (Utils::everySeconds(&updateGraph, 0.1f))
         {
-            simulation->graphsManager.render();
+            simulation->graphsManager->render();
         }
         window.display();
     }
