@@ -2,9 +2,9 @@
 
 @use ./images/\
 
-@title Physics Simulations\
+@title 2D Physics Simulations With C++\
 @author Edoardo Takanen\
-@date\
+@date 12/05/2024\
 
 @document {
     @maketitle\
@@ -14,9 +14,11 @@
     }
     
     One of the subjects I am more interested in high school is without a doubt physics.
-    We started with the concept of linear motion, then proceeding with things more "complex" and inarguably more interesting.\\
-    Since doing just some exercises for school test is not really that interesting,
-    I decided to start developing physics simulations, to challenge myself and see how many things I learn at school I can implement here.
+    We started with the concept of linear motion, then proceeding with things more *complex* and inarguably more interesting.\\
+    Since doing just some exercises for school tests is not really that interesting,
+    I decided to start developing physics simulations, to challenge myself and see how many things I learn at school I can implement here.\\
+    It is also, in my opinion, particularly helpful for a better understanding of the subject, by offering an alternative way of visualizing and acknowledging some topics.
+    Physics at school may seem to some people very abstract, so what I am also aiming with this project is to convey a different and more concrete approach to the topic.
 
     @newpage\
     @tableofcontents\
@@ -26,13 +28,17 @@
     @section (label=sec:introduction) Introduction\
 
     These simulations will just be focusing 2D.\\
-    I chose to develop this using the C++ programming language and the graphics library @href https://www.sfml-dev.org/ SFML\,
+    I chose to develop this using the **C++ programming language** and the graphics library @href https://www.sfml-dev.org/ SFML\,
     a useful library that provides graphics-related implementations and allows us to focus only on the physics and how what we render on the screen will behave, 
     thus attempting to implement by myself everything I need related to the subject (collision detection, motion, friction etc.).\\
     C++ offers a very good standard library to start from as well as low level and memory management, these tools will be very useful for the simulations to run fast, but at the same time it means more hard and challenging code to write.\\
     I will also be using a library for rendering real time plots of our simulations, which can help us to analyze data while the program is running.
     The library I am talking about is @href https://root.cern/ ROOT\,
-    a powerful open-source data analysis framework coming from the CERN.
+    a powerful open-source data analysis framework coming from the CERN.\\
+    This paper may require some knowledge of programming, since I have provided some concrete examples in the text. However, it is not mandatory for understanding the main concepts and the decisions I have made while developing the simulations.
+    \\
+    **Important:** I plan to continue developing and adding stuff to this project.
+    This means that the documentation, as well as the code, will progressively be updated. The paper refers to the version of the project up to the date specified at the beginning this document.
 
     @newpage\
 
@@ -40,7 +46,7 @@
 
     The first question obviously is: how can we structure our simulations' engine?\\
     I would like to follow the idea of how the
-    @href https://unity.com/ Unity engine\ $$fs$$ works.
+    @href https://unity.com/ Unity @superscript ©\ engine\ $$fs$$ works.
     The idea I have in mind is not only to create this physics engine, but I also want to build an API from which people can extend and experiment the engine.
     So the plan is to give people the tools to create something and learn, without having to start from scratch again, pretty much like the SFML library.\\
     A good way to start is having in mind what things we need and how to structure the whole project, let's define some of the basic stuff that the engine will have:
@@ -86,7 +92,7 @@
     In the very first section of the main function, we are declaring the principal variables: the window (an SFML class for rendering meshes), the graphsManager (the class for plotting graphs) and the simulation (what will handle everything, from image above @ref fig:enginestructure\). They will be discussed better later.
     Also before the while loop we prepare the simulation with the simulation::onCreate function.\\
     Next, we are launching the simulation forever until the program is stopped.\\
-    In the loop, we:
+    **In the loop**, we:
     @list {
         @item {
             First tell the simulation that a new frame is starting (simulation::onUpdate).
@@ -114,7 +120,7 @@
     @subsection (label=subsec:oncreate) onCreate\
     Event called at the very beginning of the program, before starting to build the first frame. It is usually used to create and spawn the entities used in the simulation.
     @subsection (label=subsec:onevent) onEvent\
-    Event called when a key is pressed.
+    Event called when a key on the keyboard is pressed.
     @subsection (label=subsec:onupdate) onUpdate\
     Event called when the program is starting to build each frame.
     @subsection (label=subsec:ondrawgraphs) onDrawGraphs\
@@ -191,11 +197,9 @@
 
     @code (language=C++, label=lst:behavior.cpp) ./code/behavior.txt\
 
-    I wanted to use the same approach used by unity, so behaviors can be added to entities using the **AddBehavior()** function, where the new value is stored in an array of Behavior pointers, and can be retrieved with the
+    I wanted to use the same approach used by the Unity@superscript ©\ engine, so behaviors can be added to entities using the **AddBehavior()** function, where the new value is stored in an array of Behavior pointers, and can be retrieved with the
     **TryGetBehavior()** function. (see @ref sec:entity\).\\
     This means an entity can have as many behaviors as you want, this is very convenient for organizing the simulations, giving each behavior a little task to do.
-    
-    @newpage\
 
     @subsection (label=subsec:rigidbody) Rigidbody\
 
@@ -236,9 +240,7 @@
         }
     }
 
-    @newpage\
-
-    @subsubsection What's tunneling?\
+    @subsubsection What is tunneling?\
 
     @figure (H) {
         @graphic TunnelingProblem\
@@ -251,7 +253,7 @@
 
     @list {
         @item {
-            Make sure an object doesn't move too fast
+            Make sure an object does not move too fast
         }
         @item {
             Increase frames per second (not always possible)
@@ -619,7 +621,7 @@
         @label fig:aabbexplanation\
     }
     AABB stands for Axis-Aligned Bounding Box.\\
-    This method only works with rectangles or squares and only if they're axis-aligned.\\
+    This method only works with rectangles or squares and only if they are axis-aligned.\\
     If two objects are colliding, all of these conditions will be true:
     @equations {
         other.left      & $$leq$$ object.right\\
@@ -693,7 +695,7 @@
 
     @code (language=C++, label=lst:graphsmanager) ./code/graphsmanager.txt\
 
-    Here's an example of building some graphs\\
+    Here is an example of building some graphs\\
     *note that the simulation class already has a graphManager property*
 
     @code (language=C++, label=lst:graphsexample) ./code/graphsexample.txt\
