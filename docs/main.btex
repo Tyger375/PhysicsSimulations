@@ -1,5 +1,9 @@
 @class article\
 
+@env {
+    pdftitle = Physics Simulations With C++
+}
+
 @use ./images/\
 
 @title 2D Physics Simulations With C++\
