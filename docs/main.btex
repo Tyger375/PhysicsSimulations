@@ -41,7 +41,7 @@
     a powerful open-source data analysis framework coming from the CERN.\\
     This paper may require some knowledge of programming, since I have provided some concrete examples in the text. However, it is not mandatory for understanding the main concepts and the decisions I have made while developing the simulations.
     \\
-    **Important:** I plan to continue developing and adding stuff to this project.
+    **Important:** I am planning to continue developing and adding stuff to this project.
     This means that the documentation, as well as the code, will progressively be updated. The paper refers to the version of the project up to the date specified at the beginning this document.
 
     @newpage\
@@ -139,7 +139,7 @@
     @code (language=C++, label=lst:entity.cpp) ./code/entity.txt\
 
     These are all the methods every entity needs.
-    I will talk about behaviors later, now, before looking at the 3 main phases of each entity, I want to discuss the difference between the two events update and fixed update.
+    Behaviors will be discussed later in this paper, now, before looking at the 3 main phases of each entity, I want to discuss the difference between the two events update and fixed update.
 
     @subsection (label=subsec:update-vs-fixed-update) update vs fixed update\
 
@@ -214,7 +214,7 @@
 
     Collision detection is used to check if an object is colliding with another object
     This part will not cover the two collision detection algorithms (aabb/sat).
-    I will talk about them in @ref subsec:collisionshape\.\\
+    They will be developed in @ref subsec:collisionshape\.\\
     The two types of collision detection I have implemented are:
 
     @list {
@@ -355,7 +355,7 @@
 
     @code (language=C++, label=lst:collidingstruct) ./code/colliding.txt\
 
-    I will talk more about this in @ref subsec:collisionshape\.
+    These will be developed in @ref subsec:collisionshape\.
     @paragraph Traslational impulses\\
     Assuming that there is no friction, the impulse we will generate will be entirely in the normal direction.
     This impulse will be only calculated if the two objects are trying to overlap, we check this calculating the relative velocity along the normal:
